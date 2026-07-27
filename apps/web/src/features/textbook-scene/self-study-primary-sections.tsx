@@ -131,27 +131,27 @@ function RelationshipEvidenceFigure({ figureKind, evidenceLabels }: { figureKind
             <text className="scope-room-label" x="155" y="160">01号机房 · 本次进入</text>
             <rect className="scope-room is-out-scope" data-scope-zone="excluded-room" height="175" rx="18" width="140" x="690" y="130" />
             <text className="scope-room-label" x="710" y="160">02号机房</text>
-            <rect className="scope-collection-boundary" data-scope-zone="collection-zone" height="125" rx="12" width="330" x="150" y="170" />
-            <rect className="scope-boundary-label-box" data-scope-boundary-label="collection" height="22" rx="6" width="178" x="165" y="178" />
-            <text className="scope-boundary-label" x="177" y="194">本运营商采集区 · K01-K04</text>
+            <rect className="scope-collection-boundary" data-scope-zone="collection-zone" height="100" rx="12" width="280" x="165" y="180" />
+            <rect className="scope-boundary-label-box" data-scope-boundary-label="collection" height="20" rx="6" width="178" x="175" y="185" />
+            <text className="scope-boundary-label" x="187" y="200">本运营商采集区 · K01-K04</text>
             {['K01', 'K02', 'K03', 'K04'].map((rack, index) => (
-              <g data-scope-rack={rack} key={rack} transform={`translate(${185 + index * 65} 210)`}>
-                <rect className="scope-rack is-target" height="64" rx="10" width="48" />
-                <text x="24" y="38">{rack}</text>
+              <g data-scope-rack={rack} key={rack} transform={`translate(${185 + index * 60} 215)`}>
+                <rect className="scope-rack is-target" height="48" rx="9" width="42" />
+                <text x="21" y="31">{rack}</text>
               </g>
             ))}
-            <rect className="scope-rack-exclusion-zone" data-scope-zone="excluded-rack-zone" height="125" rx="12" width="120" x="500" y="170" />
-            <rect className="scope-rack-exclusion-label-box" data-scope-boundary-label="excluded-rack" height="22" rx="6" width="82" x="515" y="178" />
-            <text className="scope-rack-exclusion-label" x="527" y="194">排除对象</text>
-            <g data-scope-rack="other-operator" transform="translate(535 210)">
-              <rect className="scope-rack is-excluded" height="64" rx="10" width="50" />
-              <text x="25" y="24">他网</text>
-              <text x="25" y="50">柜</text>
+            <rect className="scope-rack-exclusion-zone" data-scope-zone="excluded-rack-zone" height="100" rx="12" width="110" x="490" y="180" />
+            <rect className="scope-rack-exclusion-label-box" data-scope-boundary-label="excluded-rack" height="20" rx="6" width="82" x="504" y="185" />
+            <text className="scope-rack-exclusion-label" x="516" y="200">排除对象</text>
+            <g data-scope-rack="other-operator" transform="translate(522 215)">
+              <rect className="scope-rack is-excluded" height="48" rx="9" width="46" />
+              <text x="23" y="19">他网</text>
+              <text x="23" y="40">柜</text>
             </g>
             <path className="scope-flow" d="M120 78V90" data-scope-flow="task-to-site" markerEnd="url(#scope-arrow)" />
             <path className="scope-flow" d="M375 78V130" data-scope-flow="identity-to-room" markerEnd="url(#scope-arrow)" />
             <path className="scope-reject-flow" d="M745 78V130" data-scope-flow="exclude-to-room" markerEnd="url(#scope-arrow)" />
-            <path className="scope-reject-flow" d="M650 78V105H560V170" data-scope-flow="exclude-to-rack" markerEnd="url(#scope-arrow)" />
+            <path className="scope-reject-flow" d="M650 78V105H545V180" data-scope-flow="exclude-to-rack" markerEnd="url(#scope-arrow)" />
             <g className="scope-callout" data-scope-callout="task" transform="translate(20 8)">
               <rect height="70" rx="14" width="200" />
               <text className="scope-callout-title" x="18" y="23">任务单</text>
