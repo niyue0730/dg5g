@@ -11,6 +11,7 @@ import { migrateDatabase } from '../../../platform/db/migrations.ts';
 import { createTestDatabase, type TestDatabase } from '../../../platform/db/test-database.ts';
 import { POST as issueLaunch } from './launch-ticket/route.ts';
 import { GET as redeemLaunch } from './launch/redeem/route.ts';
+import { GET as navigateStudentLaunch } from './launch/student03/route.ts';
 import { POST as startPresenter } from './presenter-session/route.ts';
 
 let fixture: TestDatabase;
@@ -76,6 +77,64 @@ test('teacher opens a one-use localhost student launch without exposing credenti
     'student03',
   );
   assert.equal((await redeemLaunch(new Request(payload.launchUrl))).status, 410);
+});
+
+test('one native navigation bridges to the current student stage', async () => {
+  const teacher = new AuthService(fixture.database).login({
+    username: 'teacher01',
+    password: '123456',
+  });
+  assert.ok(teacher);
+  const response = navigateStudentLaunch(new Request(
+    'http://localhost:3157/api/demo/launch/student03?returnPath=%2Flearn%2FP1T1-N02&sourceOrigin=http%3A%2F%2F127.0.0.1%3A3157',
+    {
+      headers: {
+        cookie: `${AUTH_COOKIE_NAME}=${teacher.token}`,
+        referer: 'http://127.0.0.1:3157/teacher/demo-control',
+        'sec-fetch-site': 'same-origin',
+      },
+    },
+  ));
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type') ?? '', /text\/html/i);
+  assert.equal(response.headers.get('location'), null);
+  assert.match(response.headers.get('cache-control') ?? '', /no-store/i);
+  const bridge = await response.text();
+  const launchUrl = bridge.match(
+    /href="(http:\/\/localhost:3157\/api\/demo\/launch\/redeem\?ticket=[^"]+)"/,
+  )?.[1];
+  assert.ok(launchUrl);
+
+  const redeemed = await redeemLaunch(new Request(launchUrl!));
+  assert.equal(redeemed.status, 303);
+  assert.equal(redeemed.headers.get('location'), 'http://localhost:3157/learn/P1T1-N02');
+});
+
+test('native student launch rejects missing, mismatched and cross-site sources', async () => {
+  const teacher = new AuthService(fixture.database).login({
+    username: 'teacher01',
+    password: '123456',
+  });
+  assert.ok(teacher);
+  const cookie = `${AUTH_COOKIE_NAME}=${teacher.token}`;
+
+  const missingSource = navigateStudentLaunch(new Request(
+    'http://localhost:3157/api/demo/launch/student03?returnPath=%2Fstudent%2Fhome',
+    { headers: { cookie } },
+  ));
+  assert.equal(missingSource.status, 400);
+
+  const mismatchedSource = navigateStudentLaunch(new Request(
+    'https://teacher.demo.example.com/api/demo/launch/student03?returnPath=%2Fstudent%2Fhome&sourceOrigin=https%3A%2F%2Fevil.example',
+    { headers: { cookie, 'sec-fetch-site': 'same-origin' } },
+  ));
+  assert.equal(mismatchedSource.status, 403);
+
+  const crossSite = navigateStudentLaunch(new Request(
+    'http://localhost:3157/api/demo/launch/student03?returnPath=%2Fstudent%2Fhome&sourceOrigin=http%3A%2F%2F127.0.0.1%3A3157',
+    { headers: { cookie, 'sec-fetch-site': 'cross-site' } },
+  ));
+  assert.equal(crossSite.status, 403);
 });
 
 test('launch issuance rejects non-teachers, cross-origin calls and authority fields', async () => {

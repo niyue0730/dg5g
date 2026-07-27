@@ -2,7 +2,8 @@ export function resolveTrustedDemoRequestOrigin(request: Request): string | null
   if (request.headers.get('sec-fetch-site') === 'cross-site') return null;
 
   const requestOrigin = new URL(request.url).origin;
-  const browserOriginValue = request.headers.get('origin');
+  const browserOriginValue = request.headers.get('origin')
+    ?? request.headers.get('referer');
   if (!browserOriginValue) return requestOrigin;
 
   let browserOrigin: URL;

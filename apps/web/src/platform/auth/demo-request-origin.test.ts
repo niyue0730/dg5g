@@ -15,6 +15,12 @@ test('accepts exact origins and equivalent loopback host aliases', () => {
     })),
     'http://127.0.0.1:3157',
   );
+  assert.equal(
+    resolveTrustedDemoRequestOrigin(new Request('http://localhost:3157/api/demo', {
+      headers: { referer: 'http://127.0.0.1:3157/teacher/demo-control' },
+    })),
+    'http://127.0.0.1:3157',
+  );
 });
 
 test('rejects public mismatches, loopback port mismatches and cross-site fetches', () => {
