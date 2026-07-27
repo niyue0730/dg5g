@@ -714,14 +714,18 @@ export function readDemoSeed(seedPath = resolveDemoSeedPath()): DemoSeed {
 }
 
 export function resolveDemoSeedPath(): string {
-  const candidates = [
+  const workspaceCandidates = [
     join(process.cwd(), 'database', 'demo-seed.json'),
     join(process.cwd(), 'apps', 'web', 'database', 'demo-seed.json'),
-    fileURLToPath(new URL('../../../database/demo-seed.json', import.meta.url)),
   ];
-  const seedPath = candidates.find((candidate) => existsSync(candidate));
-  if (!seedPath) throw new Error('Unable to locate apps/web/database/demo-seed.json.');
-  return seedPath;
+  const workspaceSeedPath = workspaceCandidates.find((candidate) => existsSync(candidate));
+  if (workspaceSeedPath) return workspaceSeedPath;
+
+  const moduleSeedPath = fileURLToPath(
+    new URL('../../../database/demo-seed.json', import.meta.url).href,
+  );
+  if (existsSync(moduleSeedPath)) return moduleSeedPath;
+  throw new Error('Unable to locate apps/web/database/demo-seed.json.');
 }
 
 function validateStableBase(seed: DemoSeed): void {

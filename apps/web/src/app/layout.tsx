@@ -24,6 +24,7 @@ import './self-study-scope-map.css';
 import './learning-activities.css';
 import './professional-output.css';
 import './formal-assessment.css';
+import './demo-control.css';
 import { ChunkLoadRecovery } from './chunk-load-recovery';
 
 export const metadata: Metadata = {
