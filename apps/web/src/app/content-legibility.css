@@ -1,0 +1,370 @@
+/*
+ * Product-wide legibility policy for the current demo surfaces.
+ * Task names and instructional copy must remain readable instead of becoming
+ * decorative ellipses. Fixed workspaces keep their layout by scrolling inside
+ * the relevant panel.
+ */
+
+:is(
+  .scene-slide-rail > button strong,
+  .scene-slide-rail > button small,
+  .scene-rail li button strong,
+  .scene-rail li button small,
+  .scene-teacher-controls > span,
+  .learning-unit-output strong,
+  .shared-classroom-scene > footer strong,
+  .scene-projector-footer strong,
+  .scene-follow-path button strong,
+  .output-review-queue span,
+  .output-review-queue small,
+  .teacher-new-lesson button small,
+  .graph-resource-links :is(a, button) strong,
+  .p1-task-rail strong,
+  .p1-node-link > strong,
+  .p1-package-reference-strip li small,
+  .p1-portfolio-item h3,
+  .p1-detail-evidence-list figcaption strong,
+  .demo-control-steps button strong,
+  .demo-control-route code,
+  .demo-control-health small,
+  .demo-control-status-grid dd,
+  .skill-brand strong,
+  .skill-branch-tabs button strong
+) {
+  overflow: visible;
+  max-width: 100%;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.scene-brand strong {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.scene-slide-rail {
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.teacher-new-lesson button {
+  height: auto;
+  min-height: 50px;
+}
+
+.scene-slide-rail > button {
+  height: auto;
+  min-height: 72px;
+  align-items: start;
+}
+
+.scene-slide-rail > button p {
+  align-content: center;
+  line-height: 1.35;
+}
+
+.scene-teacher-stage {
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+.scene-teacher-stage .shared-classroom-scene {
+  height: auto;
+  min-height: 0;
+}
+
+.scene-teacher-stage .shared-classroom-scene > footer {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.scene-teacher-inspector,
+.scene-follow-path,
+.scene-follow-activity,
+.graph-detail-panel,
+.self-study-textbook-body,
+.self-study-sections,
+.output-review-fields,
+.demo-control-steps {
+  scrollbar-gutter: stable;
+}
+
+.scene-follow-path {
+  overflow-y: auto;
+}
+
+.scene-follow-path button {
+  height: auto;
+  min-height: 62px;
+  align-items: start;
+}
+
+.scene-follow-path button strong {
+  line-height: 1.35;
+}
+
+.shared-classroom-scene > footer {
+  min-height: 78px;
+}
+
+.shared-classroom-scene > footer > div {
+  align-items: flex-start;
+}
+
+.shared-classroom-scene > footer strong {
+  line-height: 1.42;
+}
+
+.scene-projector-stage .shared-classroom-scene > footer {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: 86px;
+}
+
+.scene-projector-stage .shared-classroom-scene > footer > div {
+  padding: 9px 14px;
+}
+
+.scene-projector-stage .shared-classroom-scene > footer strong {
+  font-size: clamp(14px, 1.2vw, 16px);
+}
+
+.scene-projector-stage .shared-classroom-focus {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.scene-projector-footer {
+  min-height: 54px;
+  height: auto;
+}
+
+.scene-projector-footer strong {
+  line-height: 1.35;
+}
+
+.scene-teacher-controls {
+  min-height: 58px;
+  height: auto;
+}
+
+.scene-teacher-controls > span {
+  line-height: 1.35;
+}
+
+.map-caption {
+  right: 10px;
+  left: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  row-gap: 3px;
+  line-height: 1.25;
+}
+
+.graph-resource-links :is(a, button) {
+  height: auto;
+  min-height: 54px;
+}
+
+.graph-resource-links :is(a, button) strong {
+  line-height: 1.35;
+}
+
+.semantic-graph-svg {
+  cursor: grab;
+}
+
+.semantic-graph-svg:active,
+.is-pointer-dragging {
+  cursor: grabbing !important;
+}
+
+.curriculum-node {
+  cursor: pointer;
+}
+
+.p1-task-rail > a,
+.p1-node-link,
+.p1-portfolio-item > header,
+.p1-detail-evidence-list figcaption {
+  height: auto;
+}
+
+.p1-task-rail strong,
+.p1-node-link > strong,
+.p1-portfolio-item h3,
+.p1-detail-evidence-list figcaption strong {
+  line-height: 1.35;
+}
+
+.demo-control-route {
+  align-items: start;
+}
+
+.demo-control-route code,
+.demo-control-status-grid dd {
+  line-height: 1.45;
+}
+
+.skill-branch-tabs button {
+  height: auto;
+}
+
+:where(
+  .scene-slide-rail,
+  .scene-rail,
+  .scene-teacher-stage,
+  .scene-teacher-inspector,
+  .teacher-inspector-panel,
+  .teacher-new-lesson > div,
+  .scene-follow-path,
+  .scene-follow-activity,
+  .graph-detail-panel,
+  .self-study-textbook-body,
+  .self-study-sections,
+  .self-study-renderer .self-study-head nav,
+  .self-study-glossary,
+  .output-review-fields,
+  .demo-control-steps,
+  .graph-mode-rail,
+  .public-platform-flow,
+  .semantic-graph-shell
+) {
+  scrollbar-width: auto;
+  scrollbar-color: #4b8297 #0a2638;
+}
+
+:where(
+  .scene-slide-rail,
+  .scene-rail,
+  .scene-teacher-stage,
+  .scene-teacher-inspector,
+  .teacher-inspector-panel,
+  .teacher-new-lesson > div,
+  .scene-follow-path,
+  .scene-follow-activity,
+  .graph-detail-panel,
+  .self-study-textbook-body,
+  .self-study-sections,
+  .self-study-renderer .self-study-head nav,
+  .self-study-glossary,
+  .output-review-fields,
+  .demo-control-steps,
+  .graph-mode-rail,
+  .public-platform-flow,
+  .semantic-graph-shell
+)::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+:where(
+  .scene-slide-rail,
+  .scene-rail,
+  .scene-teacher-stage,
+  .scene-teacher-inspector,
+  .teacher-inspector-panel,
+  .teacher-new-lesson > div,
+  .scene-follow-path,
+  .scene-follow-activity,
+  .graph-detail-panel,
+  .self-study-textbook-body,
+  .self-study-sections,
+  .self-study-renderer .self-study-head nav,
+  .self-study-glossary,
+  .output-review-fields,
+  .demo-control-steps,
+  .graph-mode-rail,
+  .public-platform-flow,
+  .semantic-graph-shell
+)::-webkit-scrollbar-track {
+  border-radius: 6px;
+  background: #0a2638;
+}
+
+:where(
+  .scene-slide-rail,
+  .scene-rail,
+  .scene-teacher-stage,
+  .scene-teacher-inspector,
+  .teacher-inspector-panel,
+  .teacher-new-lesson > div,
+  .scene-follow-path,
+  .scene-follow-activity,
+  .graph-detail-panel,
+  .self-study-textbook-body,
+  .self-study-sections,
+  .self-study-renderer .self-study-head nav,
+  .self-study-glossary,
+  .output-review-fields,
+  .demo-control-steps,
+  .graph-mode-rail,
+  .public-platform-flow,
+  .semantic-graph-shell
+)::-webkit-scrollbar-thumb {
+  min-height: 34px;
+  border: 2px solid #0a2638;
+  border-radius: 6px;
+  background: #4b8297;
+}
+
+:where(
+  .scene-slide-rail,
+  .scene-rail,
+  .scene-teacher-stage,
+  .scene-teacher-inspector,
+  .teacher-inspector-panel,
+  .teacher-new-lesson > div,
+  .scene-follow-path,
+  .scene-follow-activity,
+  .graph-detail-panel,
+  .self-study-textbook-body,
+  .self-study-sections,
+  .self-study-renderer .self-study-head nav,
+  .self-study-glossary,
+  .output-review-fields,
+  .demo-control-steps,
+  .graph-mode-rail,
+  .public-platform-flow,
+  .semantic-graph-shell
+)::-webkit-scrollbar-thumb:hover {
+  background: #65a7bd;
+}
+
+@media (max-width: 760px) {
+  .textbook-scene-shell.is-learning .learning-workspace.is-path-open {
+    grid-template-rows: 84px minmax(0, 1fr);
+  }
+
+  .textbook-scene-shell.is-learning .learning-workspace .scene-rail {
+    padding: 7px 9px;
+  }
+
+  .scene-rail li button {
+    min-height: 58px;
+  }
+
+  .scene-slide-rail,
+  .scene-follow-path,
+  .scene-teacher-controls,
+  .scene-follow-controls,
+  .graph-mode-rail,
+  .self-study-renderer .self-study-head nav {
+    scrollbar-gutter: stable;
+  }
+
+  .scene-slide-rail > button,
+  .scene-follow-path button {
+    min-height: 54px;
+  }
+
+  .shared-classroom-scene > footer {
+    min-height: 62px;
+  }
+
+  .scene-projector-stage .shared-classroom-scene > footer {
+    min-height: 68px;
+  }
+}

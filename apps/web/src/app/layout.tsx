@@ -25,7 +25,9 @@ import './learning-activities.css';
 import './professional-output.css';
 import './formal-assessment.css';
 import './demo-control.css';
+import './content-legibility.css';
 import { ChunkLoadRecovery } from './chunk-load-recovery';
+import { PointerDragScroll } from './pointer-drag-scroll';
 
 export const metadata: Metadata = {
   title: 'DGBook 5G网络优化（高级）数字教材',
@@ -38,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <a className="dgbook-skip-link" href="#dgbook-main-content">跳到主要内容</a>
         <ChunkLoadRecovery />
+        <PointerDragScroll />
         <div id="dgbook-main-content" tabIndex={-1}>{children}</div>
       </body>
     </html>
