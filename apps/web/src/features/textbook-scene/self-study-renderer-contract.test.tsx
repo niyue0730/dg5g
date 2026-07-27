@@ -132,6 +132,9 @@ test('P1T1-N01 renders an engineering scope relation figure instead of plain tex
   assert.match(html, /data-scope-callout="identity"/);
   assert.match(html, /data-scope-callout="exclusion"/);
   assert.match(html, /data-scope-boundary-label="collection"/);
+  assert.match(html, /data-scope-zone="collection-zone"/);
+  assert.match(html, /data-scope-zone="excluded-rack-zone"/);
+  assert.match(html, /data-scope-boundary-label="excluded-rack"/);
   assert.match(html, /data-scope-flow="identity-to-room"/);
   assert.match(html, /data-scope-flow="exclude-to-rack"/);
   assert.doesNotMatch(html, /data-scope-flow="collection-to-boundary"/);
