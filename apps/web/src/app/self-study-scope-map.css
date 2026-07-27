@@ -73,10 +73,10 @@
   stroke: rgba(251, 146, 60, 0.86);
 }
 
-.self-study-scope-map .scope-rack text {
+.self-study-scope-map [data-scope-rack] text {
   text-anchor: middle;
   fill: #f8fafc;
-  font-size: 15px;
+  font-size: 13px;
 }
 
 .self-study-scope-map .scope-collection-boundary {

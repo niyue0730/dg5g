@@ -146,6 +146,8 @@ test('P1T1-N01 renders an engineering scope relation figure instead of plain tex
   assert.match(scopeCss, /\.self-study-engineering-figure\s*>\s*\.self-study-scope-map\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\)/);
   assert.match(scopeCss, /\.self-study-scope-map svg\s*\{[\s\S]*?height:\s*auto[\s\S]*?aspect-ratio:\s*23\s*\/\s*8/);
   assert.doesNotMatch(scopeCss, /\.self-study-scope-map svg\s*\{[^}]*min-height/);
+  assert.match(scopeCss, /\[data-scope-rack\] text\s*\{[\s\S]*?text-anchor:\s*middle[\s\S]*?font-size:\s*13px/);
+  assert.doesNotMatch(scopeCss, /\.scope-rack text\s*\{/);
   assert.match(scopeCss, /@media \(max-width: 760px\)[\s\S]*?\.self-study-scope-map svg\s*\{[\s\S]*?display:\s*none/);
 });
 
