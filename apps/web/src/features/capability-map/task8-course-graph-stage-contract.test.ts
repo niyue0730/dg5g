@@ -4,6 +4,7 @@ import test from 'node:test';
 import * as React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { graphData } from '../../platform/fixtures/capability-fixtures.ts';
+import { nodeLearningPolicies } from '../../platform/learning-policy.ts';
 import { SemanticCourseGraph } from './semantic-course-graph.tsx';
 
 const { createElement } = React;
@@ -87,4 +88,39 @@ test('the default learning path renders complete P1 plus one explicit unopened-c
   assert.match(html, /href="\/learn\/P1T1-N02"/);
   assert.match(html, /data-graph-resource="R-P1T1-N02-FOLLOW"/);
   assert.match(html, /href="\/classroom\/demo-class"/);
+});
+
+test('teacher graph resources are exact-node commands instead of generic navigation links', () => {
+  const progress = nodeLearningPolicies.map(({ nodeId }) => ({
+    nodeId,
+    learningState: 'available' as const,
+    stateCompletionPercent: 0,
+    nextRequirement: '选择节点进入授课',
+  }));
+  const html = renderToStaticMarkup(createElement(SemanticCourseGraph, {
+    actorMode: 'teacher',
+    graph: graphData,
+    heatmap: [],
+    selectedNodeId: 'P1T1-N02',
+    progress,
+    taskProgress: [],
+    motionState: 'paused',
+    onInteraction() {},
+    onNodeSelect() {},
+    onResourceSelect() {},
+    onTaskSelect() {},
+  }));
+
+  for (const resourceId of ['R-P1T1-N02-TEACHER', 'R-P1T1-N02-PRESENT']) {
+    assert.match(
+      html,
+      new RegExp(`<button[^>]*data-graph-resource="${resourceId}"`),
+      `${resourceId} is an authoritative teacher command`,
+    );
+    assert.doesNotMatch(
+      html,
+      new RegExp(`<a[^>]*data-graph-resource="${resourceId}"`),
+      `${resourceId} does not bypass node activation with a static link`,
+    );
+  }
 });

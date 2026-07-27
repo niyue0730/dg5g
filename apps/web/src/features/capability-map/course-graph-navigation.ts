@@ -3,6 +3,25 @@ import type { P1TaskId } from '../../platform/learning-policy.ts';
 
 export type CourseGraphNodeAction = 'learn' | 'formal-test' | 'professional-output';
 
+export async function activateTeacherGraphNode({
+  initialRevision,
+  start,
+  refreshRevision,
+}: {
+  initialRevision: number;
+  start: (expectedRevision: number) => Promise<{ status: 'started' } | { status: 'conflict'; currentRevision: number }>;
+  refreshRevision: () => Promise<number>;
+}): Promise<void> {
+  const first = await start(initialRevision);
+  if (first.status === 'started') return;
+
+  const refreshedRevision = await refreshRevision();
+  const second = await start(refreshedRevision);
+  if (second.status === 'conflict') {
+    throw new Error('课堂状态刚刚发生变化，请重新选择能力节点。');
+  }
+}
+
 export function dispatchCurriculumGraphNode(
   node: CurriculumGraphNode,
   callbacks: {

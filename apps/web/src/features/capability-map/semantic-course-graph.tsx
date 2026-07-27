@@ -38,6 +38,7 @@ export function SemanticCourseGraph({
   motionState,
   onInteraction,
   onNodeSelect,
+  onResourceSelect,
   onTaskSelect,
 }: {
   actorMode: GraphSnapshotModel['mode'];
@@ -50,6 +51,7 @@ export function SemanticCourseGraph({
   motionState: GraphMotionState;
   onInteraction: () => void;
   onNodeSelect: (nodeId: string, action: CourseGraphNodeAction) => void;
+  onResourceSelect?: (nodeId: string, resource: ResourceCard) => void;
   onTaskSelect: (taskId: P1TaskId) => void;
 }) {
   const shellRef = useRef<HTMLDivElement>(null);
@@ -161,6 +163,7 @@ export function SemanticCourseGraph({
   const selectedResources = selected?.nodeId
     ? resourcesForActor(graph.bindings.filter(({ nodeId }) => nodeId === selected.nodeId), actorMode)
     : [];
+  const selectedResourceNodeId = selected?.nodeId;
   return (
     <section className={`semantic-graph-shell is-${mode} is-${actorMode}`} data-graph-density={mode}
       data-primary-action-policy={detail && (detail.node.nodeId || detail.node.taskId) && selectedAccess.canNavigate ? 'exactly-one' : 'none'}
@@ -228,11 +231,18 @@ export function SemanticCourseGraph({
             <section className="graph-resource-links" data-graph-resource-count={selectedResources.length}>
               <header><span>关联资源</span><strong>{selectedResources.length} 项可用资源</strong></header>
               <div>
-                {selectedResources.map((resource) => (
-                  <a data-graph-resource={resource.resourceId} href={resource.routeTarget.href}
+                {selectedResources.map((resource) => actorMode === 'teacher' && selectedResourceNodeId && onResourceSelect ? (
+                  <button data-graph-resource={resource.resourceId}
                     key={resource.resourceId}
-                    rel={resource.type === 'projector' ? 'noreferrer' : undefined}
-                    target={resource.type === 'projector' ? '_blank' : undefined}>
+                    onClick={() => onResourceSelect(selectedResourceNodeId, resource)}
+                    type="button">
+                    <Icon name={resourceIcon(resource)} size={17} />
+                    <span><strong>{resource.title}</strong><small>{resourceTypeLabel[resource.type]}</small></span>
+                    <Icon name="arrow" size={15} />
+                  </button>
+                ) : (
+                  <a data-graph-resource={resource.resourceId} href={resource.routeTarget.href}
+                    key={resource.resourceId}>
                     <Icon name={resourceIcon(resource)} size={17} />
                     <span><strong>{resource.title}</strong><small>{resourceTypeLabel[resource.type]}</small></span>
                     <Icon name="arrow" size={15} />

@@ -3,6 +3,7 @@ import test from 'node:test';
 import { curriculumGraphNodes } from '../../platform/fixtures/curriculum-graph-fixtures.ts';
 import type { CurriculumGraphNode } from '../../platform/models.ts';
 import {
+  activateTeacherGraphNode,
   dispatchCurriculumGraphNode,
   navigateStudentGraphNode,
 } from './course-graph-navigation.ts';
@@ -49,6 +50,39 @@ test('keeps an ordinary capability node on the self-study route', () => {
     onTaskSelect() {},
   });
   assert.deepEqual(pushed, ['/learn/P1T1-N02']);
+});
+
+test('teacher graph activation retries once with the refreshed classroom revision', async () => {
+  const revisions: number[] = [];
+  let refreshCount = 0;
+
+  await activateTeacherGraphNode({
+    initialRevision: 4,
+    start: async (revision) => {
+      revisions.push(revision);
+      return revision === 4
+        ? { status: 'conflict', currentRevision: 5 }
+        : { status: 'started' };
+    },
+    refreshRevision: async () => {
+      refreshCount += 1;
+      return 6;
+    },
+  });
+
+  assert.deepEqual(revisions, [4, 6]);
+  assert.equal(refreshCount, 1);
+});
+
+test('teacher graph activation fails closed after a second revision conflict', async () => {
+  await assert.rejects(
+    activateTeacherGraphNode({
+      initialRevision: 4,
+      start: async () => ({ status: 'conflict', currentRevision: 5 }),
+      refreshRevision: async () => 6,
+    }),
+    /课堂状态刚刚发生变化/,
+  );
 });
 
 test('unknown and not-open graph entries never fall back to another learning node', () => {
