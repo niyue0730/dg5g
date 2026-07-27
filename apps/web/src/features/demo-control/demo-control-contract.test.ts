@@ -21,8 +21,16 @@ test('demo control reuses authoritative reset and lesson protocols', () => {
   assert.match(client, /await readClassroom\(sessionId\)/);
 });
 
-test('student steps copy a real route instead of opening under the teacher cookie', () => {
-  assert.match(client, /const canOpenHere = step\.audience !== 'student03'/);
+test('student steps open in a reusable isolated role window', () => {
+  assert.match(client, /resolveStepTarget\(step, window\.location\.origin, audienceOrigins\)/);
+  assert.match(client, /demoWindowName\(step\.audience\)/);
+  assert.match(client, /打开学生窗口/);
+  assert.match(client, /checkRoleWindows\(window\.location\.origin, audienceOrigins\)/);
+  assert.match(client, /教师\/学生已隔离/);
   assert.match(client, /navigator\.clipboard\.writeText/);
-  assert.match(client, /请在student03窗口打开/);
+});
+
+test('demo control receives server-validated public role origins', () => {
+  assert.match(page, /readDemoAudienceOrigins/);
+  assert.match(page, /audienceOrigins=\{audienceOrigins\}/);
 });

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { DemoControlClient } from '../../../features/demo-control/demo-control-client.tsx';
+import { readDemoAudienceOrigins } from '../../../features/demo-control/demo-control-origins.ts';
 import { readTeacherWorkbenchSnapshot } from '../../../features/home/role-home-read-model.ts';
 import { requireClassRole } from '../../../platform/auth/server-actor.ts';
 
@@ -9,8 +10,10 @@ export const metadata: Metadata = { title: '内部演示控制台 · DGBook' };
 export default async function DemoControlPage() {
   const actor = await requireClassRole('teacher');
   const snapshot = readTeacherWorkbenchSnapshot(actor);
+  const audienceOrigins = readDemoAudienceOrigins();
   return (
     <DemoControlClient
+      audienceOrigins={audienceOrigins}
       displayName={actor.displayName}
       initialClassroom={{
         ...(snapshot.lastPosition?.nodeId ? { activeNodeId: snapshot.lastPosition.nodeId } : {}),

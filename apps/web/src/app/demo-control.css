@@ -126,6 +126,7 @@
 .demo-control-route svg { color: var(--demo-cyan); }
 .demo-control-route code { overflow: hidden; color: #eaf7ff; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .demo-control-route span { color: var(--demo-muted); font-size: 11px; }
+.demo-control-route span.is-error { color: #ff9aa4; font-weight: 800; }
 .demo-control-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 .demo-control-actions button,
 .demo-control-prepare-actions button {

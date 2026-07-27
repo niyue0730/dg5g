@@ -120,6 +120,12 @@ pnpm classroom-helper:start -- --session demo-class --students stu-01,stu-02,stu
 | `DGBOOK_HELPER_TOKEN` | Web 与课堂助手之间的共享密钥 |
 | `DGBOOK_STRICT_CLASSROOM_HELPER=1` | 禁用演示回退，要求真实助手在线 |
 | `DGBOOK_TRUST_PROXY=1` | 允许受信任反向代理头 |
+| `DGBOOK_DEMO_PUBLIC_ORIGIN` | 公共介绍页入口，如 `https://demo.example.com` |
+| `DGBOOK_DEMO_TEACHER_ORIGIN` | 教师端和演示控制台入口，如 `https://teacher.demo.example.com` |
+| `DGBOOK_DEMO_STUDENT_ORIGIN` | 学生端独立入口，如 `https://student.demo.example.com`；公网演示必填 |
+| `DGBOOK_DEMO_PROJECTOR_ORIGIN` | 投屏端入口；可与教师端相同，独立部署时如 `https://screen.demo.example.com` |
+
+公网多角色演示必须让教师端与学生端使用不同主机名，并将所有入口反向代理到同一应用和同一数据源。完整配置及上线门禁见 [`docs/DEMO_MULTI_ROLE_DEPLOYMENT.md`](docs/DEMO_MULTI_ROLE_DEPLOYMENT.md)。
 
 ## 6. 教材内容与媒体
 

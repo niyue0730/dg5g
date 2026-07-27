@@ -1,12 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Icon } from '../../ui/foundation/icons.tsx';
 import {
   demoAudienceLabel,
   demoControlSteps,
+  demoStepAddress,
+  demoStepOrigin,
   demoTotalDurationSeconds,
+  demoWindowName,
+  type DemoAudience,
+  type DemoAudienceOrigins,
   type DemoControlStep,
 } from './demo-control-model.ts';
 
@@ -28,23 +33,34 @@ const idleHealth: HealthItem[] = [
   { id: 'classroom', label: '课堂会话', state: 'idle', detail: '待检查' },
   { id: 'snapshot', label: '数据快照', state: 'idle', detail: '待检查' },
   { id: 'build', label: '页面服务', state: 'idle', detail: '待检查' },
+  { id: 'windows', label: '角色窗口', state: 'idle', detail: '待检查' },
 ];
 
 export function DemoControlClient({
+  audienceOrigins,
   displayName,
   initialClassroom,
   sessionId,
 }: {
+  audienceOrigins: DemoAudienceOrigins;
   displayName: string;
   initialClassroom: ClassroomStatus;
   sessionId: string;
 }) {
+  const [currentOrigin, setCurrentOrigin] = useState('');
   const [stepIndex, setStepIndex] = useState(0);
   const [classroom, setClassroom] = useState(initialClassroom);
   const [health, setHealth] = useState(idleHealth);
   const [pending, setPending] = useState<'reset' | 'health' | 'step'>();
-  const [message, setMessage] = useState('先检查系统并恢复标准演示数据。');
+  const [message, setMessage] = useState('先检查系统、恢复基线，再分别打开教师和学生常驻窗口。');
   const step = demoControlSteps[stepIndex]!;
+  const stepTarget = currentOrigin
+    ? resolveStepTarget(step, currentOrigin, audienceOrigins)
+    : undefined;
+
+  useEffect(() => {
+    setCurrentOrigin(window.location.origin);
+  }, []);
 
   async function runHealthCheck() {
     if (pending) return;
@@ -66,12 +82,15 @@ export function DemoControlClient({
           (body) => Boolean(body && typeof body === 'object'),
         ),
         checkEndpoint('build', '页面服务', '/api/build-info', (body) => Boolean(body && typeof body === 'object')),
+        Promise.resolve(checkRoleWindows(window.location.origin, audienceOrigins)),
       ]);
       setHealth(checks);
       const current = await readClassroom(sessionId);
       setClassroom(current);
       const errors = checks.filter(({ state }) => state === 'error').length;
-      setMessage(errors ? `检查完成：${errors}项异常，请先处理后再演示。` : '检查通过：身份、课堂、数据和页面服务均可用。');
+      setMessage(errors
+        ? `检查完成：${errors}项异常，请先处理后再演示。`
+        : '检查通过：身份、课堂、数据、页面服务和角色窗口均可用。');
     } catch (error) {
       setMessage(errorMessage(error, '系统检查失败'));
     } finally {
@@ -123,20 +142,31 @@ export function DemoControlClient({
   }
 
   async function copyStepAddress(targetStep: DemoControlStep = step) {
-    const address = new URL(targetStep.route, window.location.origin).toString();
+    const target = resolveStepTarget(targetStep, window.location.origin, audienceOrigins);
+    if (target.error || !target.address) {
+      setMessage(target.error ?? '当前步骤缺少有效入口。');
+      return;
+    }
     try {
-      await navigator.clipboard.writeText(address);
+      await navigator.clipboard.writeText(target.address);
       setMessage(`${demoAudienceLabel(targetStep.audience)}地址已复制。`);
     } catch {
-      setMessage(`请复制此地址：${address}`);
+      setMessage(`请复制此地址：${target.address}`);
     }
   }
 
   function openStep() {
-    window.open(step.route, '_blank', 'noopener,noreferrer');
+    const target = resolveStepTarget(step, window.location.origin, audienceOrigins);
+    if (target.error || !target.address) {
+      setMessage(target.error ?? '当前步骤缺少有效入口。');
+      return;
+    }
+    window.open(target.address, demoWindowName(step.audience));
+    setMessage(step.audience === 'student03'
+      ? '已切换学生三常驻窗口；该窗口的学生登录不会覆盖教师控制台。'
+      : `已切换${demoAudienceLabel(step.audience)}。`);
   }
 
-  const canOpenHere = step.audience !== 'student03';
   const healthyCount = health.filter(({ state }) => state === 'healthy').length;
 
   return (
@@ -189,14 +219,18 @@ export function DemoControlClient({
             <div className="demo-control-route">
               <Icon name={step.audience === 'projector' ? 'projector' : step.audience === 'teacher' ? 'teacher' : 'screen'} size={20} />
               <code>{step.route}</code>
-              <span>{step.audience === 'student03' ? '请在student03窗口打开' : '可由当前窗口打开'}</span>
+              <span className={stepTarget?.error ? 'is-error' : ''}>
+                {stepTarget?.error ?? stepTarget?.origin ?? '正在识别角色入口'}
+              </span>
             </div>
             <div className="demo-control-actions">
               <button disabled={Boolean(pending) || stepIndex === 0} onClick={() => void moveTo(stepIndex - 1)} type="button">
                 上一步
               </button>
-              <button onClick={() => void copyStepAddress()} type="button"><Icon name="link" size={17} />复制地址</button>
-              {canOpenHere ? <button onClick={openStep} type="button"><Icon name="screen" size={17} />打开页面</button> : null}
+              <button disabled={Boolean(stepTarget?.error)} onClick={() => void copyStepAddress()} type="button"><Icon name="link" size={17} />复制地址</button>
+              <button disabled={Boolean(stepTarget?.error)} onClick={openStep} type="button">
+                <Icon name="screen" size={17} />{openButtonLabel(step.audience)}
+              </button>
               <button className="is-primary" disabled={Boolean(pending) || stepIndex === demoControlSteps.length - 1} onClick={() => void moveTo(stepIndex + 1)} type="button">
                 {pending === 'step' ? '正在准备…' : '下一步'}<Icon name="arrow" size={17} />
               </button>
@@ -232,9 +266,9 @@ export function DemoControlClient({
                 <div><dt>状态版本</dt><dd>r{classroom.revision}</dd></div>
               </dl>
               <div className="demo-control-window-guide">
-                <span><Icon name="teacher" size={17} />教师窗口：teacher01</span>
-                <span><Icon name="user" size={17} />学生窗口：student03</span>
-                <span><Icon name="projector" size={17} />投屏窗口：教师身份</span>
+                <span><Icon name="teacher" size={17} />教师窗口：{audienceOrigin('teacher', currentOrigin, audienceOrigins)} · teacher01</span>
+                <span><Icon name="user" size={17} />学生窗口：{audienceOrigin('student03', currentOrigin, audienceOrigins)} · student03</span>
+                <span><Icon name="projector" size={17} />投屏窗口：{audienceOrigin('projector', currentOrigin, audienceOrigins)} · 教师身份</span>
               </div>
             </section>
           </div>
@@ -343,4 +377,66 @@ async function prepareLesson(sessionId: string, nodeId: string): Promise<Classro
 
 function errorMessage(error: unknown, fallback: string): string {
   return error instanceof Error ? `${fallback}：${error.message}` : fallback;
+}
+
+function openButtonLabel(audience: DemoControlStep['audience']): string {
+  return {
+    public: '打开页面',
+    student03: '打开学生窗口',
+    teacher: '打开教师端',
+    projector: '打开投屏端',
+  }[audience];
+}
+
+function resolveStepTarget(
+  step: Pick<DemoControlStep, 'audience' | 'route'>,
+  currentOrigin: string,
+  audienceOrigins: DemoAudienceOrigins,
+): { address?: string; origin?: string; error?: string } {
+  try {
+    const address = demoStepAddress(step, currentOrigin, audienceOrigins);
+    return { address, origin: new URL(address).origin };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : '角色入口配置无效。' };
+  }
+}
+
+function audienceOrigin(
+  audience: DemoAudience,
+  currentOrigin: string,
+  audienceOrigins: DemoAudienceOrigins,
+): string {
+  if (!currentOrigin) return '正在识别';
+  const target = resolveStepTarget({ audience, route: '/' }, currentOrigin, audienceOrigins);
+  return target.error ?? target.origin ?? '未配置';
+}
+
+function checkRoleWindows(
+  currentOrigin: string,
+  audienceOrigins: DemoAudienceOrigins,
+): HealthItem {
+  try {
+    const teacherOrigin = demoStepOrigin(
+      { audience: 'teacher', route: '/' },
+      currentOrigin,
+      audienceOrigins,
+    );
+    const studentOrigin = demoStepOrigin(
+      { audience: 'student03', route: '/' },
+      currentOrigin,
+      audienceOrigins,
+    );
+    if (new URL(teacherOrigin).hostname === new URL(studentOrigin).hostname) {
+      throw new Error('教师端与学生端主机名相同');
+    }
+    demoStepOrigin({ audience: 'projector', route: '/' }, currentOrigin, audienceOrigins);
+    return { id: 'windows', label: '角色窗口', state: 'healthy', detail: '教师/学生已隔离' };
+  } catch (error) {
+    return {
+      id: 'windows',
+      label: '角色窗口',
+      state: 'error',
+      detail: error instanceof Error ? error.message : '入口配置无效',
+    };
+  }
 }

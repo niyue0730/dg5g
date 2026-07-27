@@ -1,4 +1,5 @@
 export type DemoAudience = 'public' | 'student03' | 'teacher' | 'projector';
+export type DemoAudienceOrigins = Partial<Record<DemoAudience, string>>;
 
 export interface DemoControlStep {
   id: string;
@@ -121,5 +122,51 @@ export function demoAudienceLabel(audience: DemoAudience): string {
     student03: '学生三窗口',
     teacher: '教师窗口',
     projector: '投屏窗口',
+  }[audience];
+}
+
+export function demoStepAddress(
+  step: Pick<DemoControlStep, 'audience' | 'route'>,
+  currentOrigin: string,
+  audienceOrigins: DemoAudienceOrigins = {},
+): string {
+  const current = new URL(currentOrigin);
+  let targetOrigin = audienceOrigins[step.audience];
+
+  if (!targetOrigin && step.audience === 'student03') {
+    if (current.hostname === '127.0.0.1') {
+      const localStudent = new URL(current.origin);
+      localStudent.hostname = 'localhost';
+      targetOrigin = localStudent.origin;
+    } else if (current.hostname === 'localhost') {
+      const localStudent = new URL(current.origin);
+      localStudent.hostname = '127.0.0.1';
+      targetOrigin = localStudent.origin;
+    } else {
+      throw new Error('公网演示必须配置独立的学生端域名。');
+    }
+  }
+
+  const target = new URL(step.route, targetOrigin ?? current.origin);
+  if (step.audience === 'student03' && target.hostname === current.hostname) {
+    throw new Error('学生端与教师控制台必须使用不同主机名，避免登录身份互相覆盖。');
+  }
+  return target.toString();
+}
+
+export function demoStepOrigin(
+  step: Pick<DemoControlStep, 'audience' | 'route'>,
+  currentOrigin: string,
+  audienceOrigins: DemoAudienceOrigins = {},
+): string {
+  return new URL(demoStepAddress(step, currentOrigin, audienceOrigins)).origin;
+}
+
+export function demoWindowName(audience: DemoAudience): string {
+  return {
+    public: 'dgbook-public-demo',
+    student03: 'dgbook-student03-demo',
+    teacher: 'dgbook-teacher-demo',
+    projector: 'dgbook-projector-demo',
   }[audience];
 }
