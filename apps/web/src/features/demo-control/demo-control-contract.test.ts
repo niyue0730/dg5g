@@ -38,10 +38,10 @@ test('demo control receives server-validated public role origins', () => {
   assert.match(page, /audienceOrigins=\{audienceOrigins\}/);
 });
 
-test('one click clears the stale role window and auto-launches student03', () => {
+test('one click navigates the reusable role window once and auto-launches student03', () => {
   assert.match(client, /window\.open\('about:blank', windowName\)/);
-  assert.match(client, /roleWindow\.location\.href = 'about:blank'/);
   assert.match(client, /roleWindow\.location\.href = address/);
+  assert.doesNotMatch(client, /roleWindow\.location\.href = 'about:blank'/);
   assert.match(client, /\/api\/demo\/launch-ticket/);
   assert.match(client, /audience: 'student03', returnPath/);
   assert.match(client, /学生三窗口已自动登录并进入当前阶段/);

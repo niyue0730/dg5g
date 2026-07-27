@@ -473,7 +473,6 @@ function acquireRoleWindow(
     roleWindow = window.open('about:blank', windowName) ?? undefined;
   } else {
     try {
-      roleWindow.location.href = 'about:blank';
       roleWindow.focus();
     } catch {
       roleWindow = window.open('about:blank', windowName) ?? undefined;
