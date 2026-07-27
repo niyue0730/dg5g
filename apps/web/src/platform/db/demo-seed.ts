@@ -651,6 +651,10 @@ export function resetDemo(database: AppDatabase, seed = readDemoSeed()): void {
   const studentPlaceholders = DEMO_STUDENT_IDS.map(() => '?').join(', ');
   database.transaction(() => {
     database.prepare(`
+      DELETE FROM demo_launch_tickets
+      WHERE issued_by_user_id = ? OR target_user_id IN (${studentPlaceholders})
+    `).run(DEMO_TEACHER_ID, ...DEMO_STUDENT_IDS);
+    database.prepare(`
       DELETE FROM formal_assessment_instances
       WHERE session_id = ? OR assessment_id IN (
         SELECT assessment_id FROM formal_assessment_tokens

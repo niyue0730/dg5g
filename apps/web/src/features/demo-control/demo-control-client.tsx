@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Icon } from '../../ui/foundation/icons.tsx';
 import {
   demoAudienceLabel,
@@ -47,11 +47,12 @@ export function DemoControlClient({
   initialClassroom: ClassroomStatus;
   sessionId: string;
 }) {
+  const roleWindows = useRef<Partial<Record<DemoAudience, Window>>>({});
   const [currentOrigin, setCurrentOrigin] = useState('');
   const [stepIndex, setStepIndex] = useState(0);
   const [classroom, setClassroom] = useState(initialClassroom);
   const [health, setHealth] = useState(idleHealth);
-  const [pending, setPending] = useState<'reset' | 'health' | 'step'>();
+  const [pending, setPending] = useState<'reset' | 'health' | 'step' | 'open'>();
   const [message, setMessage] = useState('先检查系统、恢复基线，再分别打开教师和学生常驻窗口。');
   const step = demoControlSteps[stepIndex]!;
   const stepTarget = currentOrigin
@@ -155,16 +156,37 @@ export function DemoControlClient({
     }
   }
 
-  function openStep() {
+  async function openStep() {
     const target = resolveStepTarget(step, window.location.origin, audienceOrigins);
     if (target.error || !target.address) {
       setMessage(target.error ?? '当前步骤缺少有效入口。');
       return;
     }
-    window.open(target.address, demoWindowName(step.audience));
-    setMessage(step.audience === 'student03'
-      ? '已切换学生三常驻窗口；该窗口的学生登录不会覆盖教师控制台。'
-      : `已切换${demoAudienceLabel(step.audience)}。`);
+    const roleWindow = acquireRoleWindow(
+      step.audience,
+      demoWindowName(step.audience),
+      roleWindows.current,
+    );
+    if (!roleWindow) {
+      setMessage('浏览器阻止了窗口打开，请允许本站弹出窗口后重试。');
+      return;
+    }
+
+    setPending('open');
+    try {
+      const address = step.audience === 'student03'
+        ? await createStudentLaunchAddress(step.route, new URL(target.address).origin)
+        : target.address;
+      navigateRoleWindow(roleWindow, address);
+      setMessage(step.audience === 'student03'
+        ? '学生三窗口已自动登录并进入当前阶段，教师控制台保持登录。'
+        : `已进入${demoAudienceLabel(step.audience)}当前阶段。`);
+    } catch (error) {
+      navigateRoleWindow(roleWindow, target.address);
+      setMessage(errorMessage(error, '自动打开失败，已转到普通登录入口'));
+    } finally {
+      setPending(undefined);
+    }
   }
 
   const healthyCount = health.filter(({ state }) => state === 'healthy').length;
@@ -228,8 +250,8 @@ export function DemoControlClient({
                 上一步
               </button>
               <button disabled={Boolean(stepTarget?.error)} onClick={() => void copyStepAddress()} type="button"><Icon name="link" size={17} />复制地址</button>
-              <button disabled={Boolean(stepTarget?.error)} onClick={openStep} type="button">
-                <Icon name="screen" size={17} />{openButtonLabel(step.audience)}
+              <button disabled={Boolean(stepTarget?.error) || Boolean(pending)} onClick={() => void openStep()} type="button">
+                <Icon name="screen" size={17} />{pending === 'open' ? '正在打开…' : openButtonLabel(step.audience)}
               </button>
               <button className="is-primary" disabled={Boolean(pending) || stepIndex === demoControlSteps.length - 1} onClick={() => void moveTo(stepIndex + 1)} type="button">
                 {pending === 'step' ? '正在准备…' : '下一步'}<Icon name="arrow" size={17} />
@@ -439,4 +461,59 @@ function checkRoleWindows(
       detail: error instanceof Error ? error.message : '入口配置无效',
     };
   }
+}
+
+function acquireRoleWindow(
+  audience: DemoAudience,
+  windowName: string,
+  roleWindows: Partial<Record<DemoAudience, Window>>,
+): Window | null {
+  let roleWindow = roleWindows[audience];
+  if (!roleWindow || roleWindow.closed) {
+    roleWindow = window.open('about:blank', windowName) ?? undefined;
+  } else {
+    try {
+      roleWindow.location.href = 'about:blank';
+      roleWindow.focus();
+    } catch {
+      roleWindow = window.open('about:blank', windowName) ?? undefined;
+    }
+  }
+  if (!roleWindow) return null;
+  roleWindows[audience] = roleWindow;
+  roleWindow.focus();
+  return roleWindow;
+}
+
+function navigateRoleWindow(roleWindow: Window, address: string): void {
+  roleWindow.location.href = address;
+  roleWindow.focus();
+}
+
+async function createStudentLaunchAddress(
+  returnPath: string,
+  expectedOrigin: string,
+): Promise<string> {
+  const response = await fetch('/api/demo/launch-ticket', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ audience: 'student03', returnPath }),
+  });
+  const body = await response.json().catch(() => ({})) as {
+    error?: string;
+    launchUrl?: string;
+  };
+  if (!response.ok || typeof body.launchUrl !== 'string') {
+    throw new Error(body.error ?? `启动票据签发失败（${response.status}）`);
+  }
+  const launchUrl = new URL(body.launchUrl);
+  if (
+    launchUrl.origin !== expectedOrigin
+    || launchUrl.pathname !== '/api/demo/launch/redeem'
+    || launchUrl.searchParams.getAll('ticket').length !== 1
+  ) {
+    throw new Error('启动票据返回了错误的学生端地址。');
+  }
+  return launchUrl.toString();
 }

@@ -124,8 +124,10 @@ pnpm classroom-helper:start -- --session demo-class --students stu-01,stu-02,stu
 | `DGBOOK_DEMO_TEACHER_ORIGIN` | 教师端和演示控制台入口，如 `https://teacher.demo.example.com` |
 | `DGBOOK_DEMO_STUDENT_ORIGIN` | 学生端独立入口，如 `https://student.demo.example.com`；公网演示必填 |
 | `DGBOOK_DEMO_PROJECTOR_ORIGIN` | 投屏端入口；可与教师端相同，独立部署时如 `https://screen.demo.example.com` |
+| `DGBOOK_DEMO_AUTO_LOGIN=1` | 公网启用私有演示启动链接；本地回环地址无需配置 |
+| `DGBOOK_DEMO_PRESENTER_KEY` | 公网演示启动密钥，至少32位随机字符串，不得写入仓库或普通页面 |
 
-公网多角色演示必须让教师端与学生端使用不同主机名，并将所有入口反向代理到同一应用和同一数据源。完整配置及上线门禁见 [`docs/DEMO_MULTI_ROLE_DEPLOYMENT.md`](docs/DEMO_MULTI_ROLE_DEPLOYMENT.md)。
+公网多角色演示必须让教师端与学生端使用不同主机名，并将所有入口反向代理到同一应用和同一数据源。教师使用私有链接进入控制台，学生窗口由控制台自动建立会话；两端均不显示登录页。完整配置及上线门禁见 [`docs/DEMO_MULTI_ROLE_DEPLOYMENT.md`](docs/DEMO_MULTI_ROLE_DEPLOYMENT.md)。
 
 ## 6. 教材内容与媒体
 

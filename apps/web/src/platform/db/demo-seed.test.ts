@@ -168,7 +168,7 @@ test('demo seeding removes obsolete demo facts and resets legacy-only cursors to
   }
 });
 
-test('a v8 production-shaped demo upgrades through v14 without deleting an unknown legacy runtime fact', () => {
+test('a v8 production-shaped demo upgrades through v15 without deleting an unknown legacy runtime fact', () => {
   const fixture = createTestDatabase();
   try {
     applyMigrationsThrough(fixture.database, 8);
@@ -223,7 +223,7 @@ test('a v8 production-shaped demo upgrades through v14 without deleting an unkno
         ('demo-task-score-stu-03-p1t2-v1', 'stu-03', 'P02', 1, 92, 92, '{}');
     `);
 
-    assert.deepEqual(migrateDatabase(fixture.database).appliedVersions, [9, 10, 11, 12, 13, 14]);
+    assert.deepEqual(migrateDatabase(fixture.database).appliedVersions, [9, 10, 11, 12, 13, 14, 15]);
     seedDemo(fixture.database);
 
     assert.equal(count(fixture.database, `

@@ -12,6 +12,34 @@
   background: #061a35;
 }
 
+.demo-start-shell {
+  --demo-cyan: #32d3cf;
+  --demo-muted: #9eb5cf;
+  width: min(460px, calc(100% - 32px));
+  min-height: 100svh;
+  margin: 0 auto;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  color: #eaf7ff;
+  text-align: center;
+}
+.demo-start-mark {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--demo-cyan);
+  border-radius: 6px;
+  color: #03152b;
+  background: var(--demo-cyan);
+  font-weight: 950;
+}
+.demo-start-shell h1 { margin: 6px 0 0; font-size: 24px; letter-spacing: 0; }
+.demo-start-shell p { margin: 0; color: var(--demo-muted); font-size: 13px; line-height: 1.7; }
+.demo-start-shell a { color: var(--demo-cyan); font-size: 13px; font-weight: 800; }
+
 .demo-control-topbar {
   min-height: 64px;
   display: grid;

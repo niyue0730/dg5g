@@ -3,12 +3,15 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const client = readFileSync(new URL('./demo-control-client.tsx', import.meta.url), 'utf8');
+const startClient = readFileSync(new URL('./demo-start-client.tsx', import.meta.url), 'utf8');
 const page = readFileSync(new URL('../../app/teacher/demo-control/page.tsx', import.meta.url), 'utf8');
 
 test('hidden demo control is teacher-authorized and absent from product navigation', () => {
-  assert.match(page, /requireClassRole\('teacher'\)/);
+  assert.match(page, /readServerActor\(\)/);
+  assert.match(page, /redirect\('\/demo\/start'\)/);
+  assert.match(page, /actor\.role !== 'teacher'/);
   assert.match(page, /readTeacherWorkbenchSnapshot/);
-  assert.doesNotMatch(client, /password|123456|studentId=/);
+  assert.doesNotMatch(`${client}\n${startClient}\n${page}`, /password|123456|studentId=/);
   assert.match(client, /不进入业务导航/);
 });
 
@@ -33,4 +36,21 @@ test('student steps open in a reusable isolated role window', () => {
 test('demo control receives server-validated public role origins', () => {
   assert.match(page, /readDemoAudienceOrigins/);
   assert.match(page, /audienceOrigins=\{audienceOrigins\}/);
+});
+
+test('one click clears the stale role window and auto-launches student03', () => {
+  assert.match(client, /window\.open\('about:blank', windowName\)/);
+  assert.match(client, /roleWindow\.location\.href = 'about:blank'/);
+  assert.match(client, /roleWindow\.location\.href = address/);
+  assert.match(client, /\/api\/demo\/launch-ticket/);
+  assert.match(client, /audience: 'student03', returnPath/);
+  assert.match(client, /学生三窗口已自动登录并进入当前阶段/);
+});
+
+test('demo start exchanges a stripped fragment key for a teacher session', () => {
+  assert.match(startClient, /window\.location\.hash\.slice\(1\)/);
+  assert.match(startClient, /window\.history\.replaceState/);
+  assert.match(startClient, /\/api\/demo\/presenter-session/);
+  assert.match(startClient, /window\.location\.replace\(body\.home\)/);
+  assert.doesNotMatch(startClient, /localStorage|sessionStorage|document\.cookie/);
 });
