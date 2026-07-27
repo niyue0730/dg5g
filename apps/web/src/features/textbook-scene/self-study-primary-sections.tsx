@@ -105,6 +105,10 @@ export function FigureSection({ document }: { document: SelfStudyDocument }) {
 function RelationshipEvidenceFigure({ figureKind, evidenceLabels }: { figureKind: string; evidenceLabels: string[] }) {
   const descriptor = figureDescriptor(figureKind);
   if (descriptor.kind === 'indoor-scope-boundary') {
+    const taskSegments = (evidenceLabels[0] ?? '').split(' / ');
+    const taskLineOne = taskSegments.slice(0, 2).join(' / ');
+    const taskLineTwo = taskSegments.slice(2).join(' / ');
+    const [exclusionScope = evidenceLabels[3], exclusionReason = ''] = (evidenceLabels[3] ?? '').split('；');
     return (
       <figure
         className="self-study-engineering-figure is-indoor-scope-boundary"
@@ -113,7 +117,7 @@ function RelationshipEvidenceFigure({ figureKind, evidenceLabels }: { figureKind
       >
         <figcaption><Icon name={descriptor.icon} size={20} /><span>{descriptor.title}</span></figcaption>
         <div className="self-study-scope-map" aria-label="室内采集范围工程关系图">
-          <svg data-scope-engineering-map="true" role="img" viewBox="0 0 920 430">
+          <svg data-scope-engineering-map="true" role="img" viewBox="0 0 920 320">
             <title>HY-01室内采集范围关系图</title>
             <desc>任务单要求采集01号机房K01到K04，本图同时标出共享他网机柜和02号机房排除区。</desc>
             <defs>
@@ -121,47 +125,46 @@ function RelationshipEvidenceFigure({ figureKind, evidenceLabels }: { figureKind
                 <path d="M0 0 8 4 0 8Z" />
               </marker>
             </defs>
-            <rect className="scope-site" height="340" rx="22" width="545" x="270" y="58" />
-            <text className="scope-site-label" x="294" y="112">HY-01 站点现场</text>
-            <rect className="scope-room is-in-scope" height="220" rx="18" width="345" x="315" y="120" />
-            <text className="scope-room-label" x="338" y="154">01号机房 · 本次进入</text>
-            <rect className="scope-room is-out-scope" height="220" rx="18" width="125" x="675" y="120" />
-            <text className="scope-room-label" x="695" y="154">02号机房</text>
+            <rect className="scope-site" data-scope-zone="site" height="224" rx="22" width="780" x="80" y="90" />
+            <text className="scope-site-label" x="105" y="118">HY-01 站点现场</text>
+            <rect className="scope-room is-in-scope" data-scope-zone="target-room" height="175" rx="18" width="510" x="130" y="130" />
+            <text className="scope-room-label" x="155" y="160">01号机房 · 本次进入</text>
+            <rect className="scope-room is-out-scope" data-scope-zone="excluded-room" height="175" rx="18" width="140" x="690" y="130" />
+            <text className="scope-room-label" x="710" y="160">02号机房</text>
             {['K01', 'K02', 'K03', 'K04'].map((rack, index) => (
-              <g data-scope-rack={rack} key={rack} transform={`translate(${340 + index * 60} 196)`}>
+              <g data-scope-rack={rack} key={rack} transform={`translate(${170 + index * 65} 175)`}>
                 <rect className="scope-rack is-target" height="76" rx="10" width="52" />
                 <text x="26" y="45">{rack}</text>
               </g>
             ))}
-            <g data-scope-rack="other-operator" transform="translate(594 196)">
-              <rect className="scope-rack is-excluded" height="76" rx="10" width="52" />
-              <text x="26" y="29">他网</text>
-              <text x="26" y="61">柜</text>
+            <g data-scope-rack="other-operator" transform="translate(530 175)">
+              <rect className="scope-rack is-excluded" height="76" rx="10" width="60" />
+              <text x="30" y="29">他网</text>
+              <text x="30" y="61">柜</text>
             </g>
-            <path className="scope-collection-boundary" d="M328 182H584V292H328Z" />
-            <path className="scope-flow" d="M240 132H268" markerEnd="url(#scope-arrow)" />
-            <path className="scope-flow" d="M492 112H610V178H584" markerEnd="url(#scope-arrow)" />
-            <path className="scope-reject-flow" d="M642 250C686 292 720 312 772 350" markerEnd="url(#scope-arrow)" />
-            <path className="scope-reject-flow" d="M736 238V330" markerEnd="url(#scope-arrow)" />
-            <g className="scope-callout" transform="translate(30 72)">
-              <rect height="96" rx="14" width="210" />
-              <text className="scope-callout-title" x="18" y="32">任务单</text>
-              <text x="18" y="59">{evidenceLabels[0]}</text>
+            <path className="scope-collection-boundary" d="M155 165H445V270H155Z" />
+            <rect className="scope-boundary-label-box" data-scope-boundary-label="collection" height="25" rx="6" width="290" x="155" y="276" />
+            <text className="scope-boundary-label" x="170" y="294">{evidenceLabels[2]}</text>
+            <path className="scope-flow" d="M120 78V90" data-scope-flow="task-to-site" markerEnd="url(#scope-arrow)" />
+            <path className="scope-flow" d="M375 78V130" data-scope-flow="identity-to-room" markerEnd="url(#scope-arrow)" />
+            <path className="scope-reject-flow" d="M745 78V130" data-scope-flow="exclude-to-room" markerEnd="url(#scope-arrow)" />
+            <path className="scope-reject-flow" d="M650 78V105H560V175" data-scope-flow="exclude-to-rack" markerEnd="url(#scope-arrow)" />
+            <g className="scope-callout" data-scope-callout="task" transform="translate(20 8)">
+              <rect height="70" rx="14" width="200" />
+              <text className="scope-callout-title" x="18" y="23">任务单</text>
+              <text x="18" y="43">{taskLineOne}</text>
+              {taskLineTwo ? <text x="18" y="63">{taskLineTwo}</text> : null}
             </g>
-            <g className="scope-callout" transform="translate(268 18)">
-              <rect height="76" rx="14" width="270" />
-              <text className="scope-callout-title" x="18" y="30">现场身份</text>
-              <text x="18" y="56">{evidenceLabels[1]}</text>
+            <g className="scope-callout" data-scope-callout="identity" transform="translate(240 8)">
+              <rect height="70" rx="14" width="270" />
+              <text className="scope-callout-title" x="18" y="24">现场身份</text>
+              <text x="18" y="50">{evidenceLabels[1]}</text>
             </g>
-            <g className="scope-callout is-ok" transform="translate(30 304)">
-              <rect height="90" rx="14" width="240" />
-              <text className="scope-callout-title" x="18" y="31">采集框</text>
-              <text x="18" y="57">{evidenceLabels[2]}</text>
-            </g>
-            <g className="scope-callout is-warn" transform="translate(610 24)">
-              <rect height="88" rx="14" width="280" />
-              <text className="scope-callout-title" x="18" y="32">排除区</text>
-              <text x="18" y="59">{evidenceLabels[3]}</text>
+            <g className="scope-callout is-warn" data-scope-callout="exclusion" transform="translate(590 8)">
+              <rect height="70" rx="14" width="310" />
+              <text className="scope-callout-title" x="18" y="22">排除区</text>
+              <text x="18" y="42">{exclusionScope}</text>
+              {exclusionReason ? <text x="18" y="62">{exclusionReason}</text> : null}
             </g>
           </svg>
           <ol className="self-study-scope-map-legend">

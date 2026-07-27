@@ -37,7 +37,7 @@ test('the six-section textbook owns a responsive Image2 engineering stage', asyn
   assert.match(css, /\.textbook-scene-shell\.is-learning \.learning-workspace\.is-path-open/);
   assert.match(css, /grid-template-columns: minmax\(0, 1fr\)/);
   assert.match(css, /max-width: 100vw/);
-  assert.match(figureLegibilityCss, /@media \(max-width: 1300px\)[\s\S]*?\.self-study-workspace > \.self-study-glossary\s*\{[\s\S]*?display:\s*flex/);
+  assert.match(figureLegibilityCss, /@media \(max-width: 1100px\)[\s\S]*?\.self-study-workspace > \.self-study-glossary\s*\{[\s\S]*?display:\s*flex/);
   assert.match(figureLegibilityCss, /@media \(max-width: 900px\)[\s\S]*?\.learning-workspace\.is-path-open,[\s\S]*?grid-template-rows:\s*84px minmax\(0, 1fr\)/);
   assert.doesNotMatch(css, /linear-gradient|radial-gradient/);
 });
