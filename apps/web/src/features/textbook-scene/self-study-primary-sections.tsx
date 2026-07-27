@@ -122,25 +122,25 @@ function RelationshipEvidenceFigure({ figureKind, evidenceLabels }: { figureKind
               </marker>
             </defs>
             <rect className="scope-site" height="340" rx="22" width="545" x="270" y="58" />
-            <text className="scope-site-label" x="294" y="92">HY-01 站点现场</text>
+            <text className="scope-site-label" x="294" y="112">HY-01 站点现场</text>
             <rect className="scope-room is-in-scope" height="220" rx="18" width="345" x="315" y="120" />
             <text className="scope-room-label" x="338" y="154">01号机房 · 本次进入</text>
             <rect className="scope-room is-out-scope" height="220" rx="18" width="125" x="675" y="120" />
             <text className="scope-room-label" x="695" y="154">02号机房</text>
             {['K01', 'K02', 'K03', 'K04'].map((rack, index) => (
-              <g data-scope-rack={rack} key={rack} transform={`translate(${340 + index * 74} 196)`}>
+              <g data-scope-rack={rack} key={rack} transform={`translate(${340 + index * 60} 196)`}>
                 <rect className="scope-rack is-target" height="76" rx="10" width="52" />
                 <text x="26" y="45">{rack}</text>
               </g>
             ))}
             <g data-scope-rack="other-operator" transform="translate(594 196)">
               <rect className="scope-rack is-excluded" height="76" rx="10" width="52" />
-              <text x="26" y="35">他网</text>
-              <text x="26" y="54">柜</text>
+              <text x="26" y="29">他网</text>
+              <text x="26" y="61">柜</text>
             </g>
-            <path className="scope-collection-boundary" d="M328 182H634V292H328Z" />
-            <path className="scope-flow" d="M120 132C180 132 206 132 260 132" markerEnd="url(#scope-arrow)" />
-            <path className="scope-flow" d="M492 112V178" markerEnd="url(#scope-arrow)" />
+            <path className="scope-collection-boundary" d="M328 182H584V292H328Z" />
+            <path className="scope-flow" d="M240 132H268" markerEnd="url(#scope-arrow)" />
+            <path className="scope-flow" d="M492 112H610V178H584" markerEnd="url(#scope-arrow)" />
             <path className="scope-reject-flow" d="M642 250C686 292 720 312 772 350" markerEnd="url(#scope-arrow)" />
             <path className="scope-reject-flow" d="M736 238V330" markerEnd="url(#scope-arrow)" />
             <g className="scope-callout" transform="translate(30 72)">
@@ -153,8 +153,8 @@ function RelationshipEvidenceFigure({ figureKind, evidenceLabels }: { figureKind
               <text className="scope-callout-title" x="18" y="30">现场身份</text>
               <text x="18" y="56">{evidenceLabels[1]}</text>
             </g>
-            <g className="scope-callout is-ok" transform="translate(310 326)">
-              <rect height="78" rx="14" width="330" />
+            <g className="scope-callout is-ok" transform="translate(30 304)">
+              <rect height="90" rx="14" width="240" />
               <text className="scope-callout-title" x="18" y="31">采集框</text>
               <text x="18" y="57">{evidenceLabels[2]}</text>
             </g>

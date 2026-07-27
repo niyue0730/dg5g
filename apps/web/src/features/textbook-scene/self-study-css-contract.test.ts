@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const cssUrl = new URL('../../app/self-study-textbook.css', import.meta.url);
+const figureLegibilityCssUrl = new URL('../../app/self-study-figure-legibility.css', import.meta.url);
 const figureCssUrl = new URL('../../app/annotated-engineering-figure.css', import.meta.url);
 const outputCssUrl = new URL('../../app/professional-output.css', import.meta.url);
 const classroomCssUrl = new URL('../../app/student-classroom-runtime.css', import.meta.url);
@@ -12,11 +13,13 @@ const textbookSceneCssUrl = new URL('../../app/textbook-scene.css', import.meta.
 const authCssUrl = new URL('../../app/auth.css', import.meta.url);
 
 test('the six-section textbook owns a responsive Image2 engineering stage', async () => {
-  const [css, layout] = await Promise.all([
+  const [css, figureLegibilityCss, layout] = await Promise.all([
     readFile(cssUrl, 'utf8'),
+    readFile(figureLegibilityCssUrl, 'utf8'),
     readFile(layoutUrl, 'utf8'),
   ]);
   assert.match(layout, /import '\.\/self-study-textbook\.css'/);
+  assert.match(layout, /import '\.\/self-study-figure-legibility\.css'/);
   for (const selector of [
     '.self-study-renderer',
     '.self-study-head nav',
@@ -34,6 +37,8 @@ test('the six-section textbook owns a responsive Image2 engineering stage', asyn
   assert.match(css, /\.textbook-scene-shell\.is-learning \.learning-workspace\.is-path-open/);
   assert.match(css, /grid-template-columns: minmax\(0, 1fr\)/);
   assert.match(css, /max-width: 100vw/);
+  assert.match(figureLegibilityCss, /@media \(max-width: 1300px\)[\s\S]*?\.self-study-workspace > \.self-study-glossary\s*\{[\s\S]*?display:\s*flex/);
+  assert.match(figureLegibilityCss, /@media \(max-width: 900px\)[\s\S]*?\.learning-workspace\.is-path-open,[\s\S]*?grid-template-rows:\s*84px minmax\(0, 1fr\)/);
   assert.doesNotMatch(css, /linear-gradient|radial-gradient/);
 });
 

@@ -151,7 +151,7 @@
 
 @media (max-width: 760px) {
   .self-study-scope-map svg {
-    min-height: 260px;
+    display: none;
   }
 
   .self-study-scope-map-legend {

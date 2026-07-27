@@ -40,12 +40,12 @@ export const engineeringFigureSpecs: Record<AnnotatedEngineeringFigureKind, Engi
       object('north-reference', '正北基准', '罗盘校准后记录方位', 'gps', 65, 165, 185, 105, 'cyan'),
       object('antenna-panel', 'AAU 天线面板', '扇区号、面板刻度、中心点', 'radio', 400, 105, 175, 195, 'green'),
       object('coverage-target', '目标覆盖方向', '主瓣指向与道路/建筑对应', 'target', 720, 175, 180, 105, 'amber'),
-      object('ground-reference', '统一地面基准', '挂高测量起点', 'site', 400, 340, 175, 42, 'cyan'),
+      object('ground-reference', '统一地面基准', '挂高测量起点', 'site', 400, 330, 175, 80, 'cyan'),
     ],
     connectors: [
       connector('north-to-panel', 'north-reference', 'antenna-panel', 250, 217, 400, 217),
       connector('panel-to-target', 'antenna-panel', 'coverage-target', 575, 202, 720, 227),
-      connector('panel-to-ground', 'antenna-panel', 'ground-reference', 487, 300, 487, 340),
+      connector('panel-to-ground', 'antenna-panel', 'ground-reference', 487, 300, 487, 330),
     ],
     labels: [
       label('azimuth-evidence', '01 方位角证据', '正北基准 → 面板主瓣方向', 28, 24, 265, 66, 158, 165),
@@ -74,7 +74,7 @@ export const engineeringFigureSpecs: Record<AnnotatedEngineeringFigureKind, Engi
     ],
     labels: [
       label('complaint-source', '01 固定原始事实', '先记录，不先归因', 28, 22, 250, 58, 145, 165),
-      label('same-condition', '02 锁定三项条件', '地点、业务、终端逐项一致', 355, 365, 245, 48, 440, 348),
+      label('same-condition', '02 锁定三项条件', '地点、业务、终端逐项一致', 355, 365, 245, 58, 440, 348),
       label('reproduction-evidence', '03 同口径比较', '复测现象与网络证据同步留痕', 675, 22, 255, 58, 800, 165),
     ],
   },
@@ -190,6 +190,7 @@ export function validateEngineeringFigureSpec(kind: AnnotatedEngineeringFigureKi
   const spec = engineeringFigureSpecs[kind];
   const errors: string[] = [];
   const objects = new Map(spec.objects.map((item) => [item.id, item]));
+  const canvas = { width: 960, height: 430 };
 
   for (const connector of spec.connectors) {
     const source = objects.get(connector.sourceId);
@@ -202,10 +203,37 @@ export function validateEngineeringFigureSpec(kind: AnnotatedEngineeringFigureKi
     if (!pointTouchesBox(connector.x2, connector.y2, target)) errors.push(`${connector.id}: target endpoint misses boundary`);
   }
 
+  for (const item of spec.objects) {
+    if (item.height < 64) errors.push(`${item.id}: object is too short for two readable text lines`);
+    if (item.x < 0 || item.y < 0 || item.x + item.width > canvas.width || item.y + item.height > canvas.height) {
+      errors.push(`${item.id}: object leaves canvas`);
+    }
+  }
+
+  for (const item of spec.labels) {
+    if (item.height < 58) errors.push(`${item.id}: label is too short for title and detail`);
+    if (item.x < 0 || item.y < 0 || item.x + item.width > canvas.width || item.y + item.height > canvas.height) {
+      errors.push(`${item.id}: label leaves canvas`);
+    }
+  }
+
+  for (let left = 0; left < spec.objects.length; left += 1) {
+    for (let right = left + 1; right < spec.objects.length; right += 1) {
+      if (boxesOverlap(spec.objects[left]!, spec.objects[right]!)) {
+        errors.push(`${spec.objects[left]!.id}/${spec.objects[right]!.id}: objects overlap`);
+      }
+    }
+  }
+
   for (let left = 0; left < spec.labels.length; left += 1) {
     for (let right = left + 1; right < spec.labels.length; right += 1) {
       if (boxesOverlap(spec.labels[left]!, spec.labels[right]!)) {
         errors.push(`${spec.labels[left]!.id}/${spec.labels[right]!.id}: labels overlap`);
+      }
+    }
+    for (const item of spec.objects) {
+      if (boxesOverlap(spec.labels[left]!, item)) {
+        errors.push(`${spec.labels[left]!.id}/${item.id}: label overlaps object`);
       }
     }
   }

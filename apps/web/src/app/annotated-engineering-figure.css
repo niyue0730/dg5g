@@ -175,6 +175,12 @@
   display: none;
 }
 
+@media (min-width: 761px) and (max-width: 900px) {
+  .engineering-figure-canvas svg {
+    min-width: 100%;
+  }
+}
+
 @media (max-width: 760px) {
   .annotated-engineering-figure { display: flex; flex-direction: column; }
   .annotated-engineering-figure > header { order: 1; }

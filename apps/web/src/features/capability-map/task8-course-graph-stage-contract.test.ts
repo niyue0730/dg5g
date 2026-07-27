@@ -31,11 +31,11 @@ test('semantic graph preserves full detail and one learn action on mobile', () =
   assert.match(graph, /data-primary-action-policy=/);
   assert.match(graph, /selectedAccess\.canNavigate \? '' : undefined/);
   assert.doesNotMatch(graph, /专家图谱|graph-expert-reference/);
-  assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.semantic-graph-shell[\s\S]*\.graph-detail-panel/);
+  assert.match(css, /@media \(max-width: 900px\)[\s\S]*\.semantic-graph-shell[\s\S]*\.graph-detail-panel/);
   assert.doesNotMatch(css, /@media \(max-width: 760px\)[\s\S]*\.graph-detail-panel\s*\{[^}]*display:\s*none/);
   assert.match(
     themeCss,
-    /@media \(max-width: 760px\)[\s\S]*\.semantic-graph-shell\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)[^}]*\}[\s\S]*\.graph-detail-panel\s*\{[^}]*max-width:\s*100%[^}]*\}/,
+    /@media \(max-width: 900px\)[\s\S]*\.semantic-graph-shell\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)[^}]*\}[\s\S]*\.graph-detail-panel\s*\{[^}]*max-width:\s*100%[^}]*\}/,
   );
 });
 

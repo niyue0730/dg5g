@@ -19,6 +19,7 @@ import './role-home-v5.css';
 import './p1-project.css';
 import './annotated-engineering-figure.css';
 import './self-study-textbook.css';
+import './self-study-figure-legibility.css';
 import './self-study-practice-tabs.css';
 import './self-study-scope-map.css';
 import './learning-activities.css';

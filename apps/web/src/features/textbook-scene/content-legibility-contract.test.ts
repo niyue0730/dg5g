@@ -44,6 +44,7 @@ test('pointer dragging scrolls overflowing rails without breaking ordinary click
   assert.match(support, /surface\.scrollLeft = state\.startScrollLeft - deltaX/);
   assert.match(support, /surface\.scrollTop = state\.startScrollTop - deltaY/);
   assert.match(support, /'\.teacher-inspector-panel'/);
+  assert.match(support, /'\.engineering-figure-canvas'/);
   assert.match(support, /'\.self-study-textbook-body'/);
   assert.match(support, /'\.public-platform-flow'/);
   assert.match(support, /if \(!suppressClick\) return/);

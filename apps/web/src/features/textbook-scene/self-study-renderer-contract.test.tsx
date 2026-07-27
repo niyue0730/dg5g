@@ -128,10 +128,13 @@ test('P1T1-N01 renders an engineering scope relation figure instead of plain tex
   assert.match(html, /机房入口/);
   assert.match(html, /机柜范围/);
   assert.match(html, /排除对象/);
+  assert.match(html, /<text x="26" y="29">他网<\/text>/);
+  assert.match(html, /<text x="26" y="61">柜<\/text>/);
   const css = readFileSync(new URL('../../app/self-study-textbook.css', import.meta.url), 'utf8');
   assert.match(css, /\.self-study-figure-layout\.is-full-width\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\)/);
   const scopeCss = readFileSync(new URL('../../app/self-study-scope-map.css', import.meta.url), 'utf8');
   assert.match(scopeCss, /\.self-study-engineering-figure\s*>\s*\.self-study-scope-map\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\)/);
+  assert.match(scopeCss, /@media \(max-width: 760px\)[\s\S]*?\.self-study-scope-map svg\s*\{[\s\S]*?display:\s*none/);
 });
 
 test('P1T1-N02 practice cards are labelled as must-do optional and challenge layers', () => {

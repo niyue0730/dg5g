@@ -759,9 +759,11 @@ textarea:focus-visible {
   background: rgba(7, 27, 47, .98);
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .semantic-graph-shell { width: 100%; max-width: 100%; min-width: 0; grid-template-columns: minmax(0, 1fr); } .graph-detail-panel { width: 100%; max-width: 100%; min-width: 0; } .graph-detail-panel > button { max-width: 100%; }
+}
+
+@media (max-width: 760px) {
   .challenge-layout { grid-template-columns: minmax(0, 1fr); }
   .challenge-game-stage { min-width: 0; }
 }
-

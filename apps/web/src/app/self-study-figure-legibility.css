@@ -1,0 +1,141 @@
+.self-study-figure-layout.has-evidence-support {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.self-study-figure-layout.has-evidence-support .self-study-evidence-rules {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.self-study-figure-layout.has-evidence-support .self-study-evidence-rules > span {
+  grid-column: 1 / -1;
+}
+
+.self-study-figure-layout.has-evidence-support .self-study-evidence-rules article {
+  border-right: 1px solid #203e52;
+  border-bottom: 0;
+}
+
+.self-study-figure-layout.has-evidence-support .self-study-evidence-rules article:last-child {
+  border-right: 0;
+}
+
+@media (max-width: 1300px) {
+  .self-study-problem-grid,
+  .self-study-figure-layout,
+  .self-study-steps-layout,
+  .self-study-output-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .self-study-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .self-study-workspace > .self-study-textbook-body {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .self-study-workspace > .self-study-glossary {
+    grid-column: 1;
+    grid-row: 1;
+    max-height: none;
+    display: flex;
+    margin: 8px 12px 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .self-study-workspace > .self-study-glossary > header,
+  .self-study-workspace > .self-study-glossary > details {
+    min-width: max-content;
+    flex: 0 0 auto;
+    border-right: 1px solid #294b60;
+    border-bottom: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .textbook-scene-shell.is-learning .learning-workspace.is-path-open,
+  .textbook-scene-shell.is-learning .learning-workspace.is-path-closed {
+    width: 100%;
+    max-width: 100vw;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 84px minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  .textbook-scene-shell.is-learning .learning-workspace.is-path-closed {
+    grid-template-rows: 0 minmax(0, 1fr);
+  }
+
+  .textbook-scene-shell.is-learning .learning-workspace .scene-rail {
+    width: 100%;
+    max-width: 100vw;
+    min-width: 0;
+    grid-column: 1;
+    grid-row: 1;
+    display: block;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-right: 0;
+    border-bottom: 1px solid #29495e;
+    padding: 7px 9px;
+    white-space: nowrap;
+    transform: none;
+  }
+
+  .textbook-scene-shell.is-learning .learning-workspace.is-path-closed .scene-rail {
+    display: none;
+  }
+
+  .textbook-scene-shell.is-learning .learning-workspace .scene-rail header,
+  .textbook-scene-shell.is-learning .learning-workspace .scene-rail .rail-map-button {
+    display: none;
+  }
+
+  .textbook-scene-shell.is-learning .learning-workspace .scene-rail ol {
+    display: flex;
+    gap: 6px;
+  }
+
+  .textbook-scene-shell.is-learning .learning-workspace .scene-rail li {
+    flex: 0 0 auto;
+  }
+
+  .textbook-scene-shell.is-learning .learning-workspace .scene-rail li button {
+    width: 148px;
+    min-height: 58px;
+    grid-template-columns: 25px minmax(0, 1fr);
+    padding: 5px 7px;
+  }
+
+  .textbook-scene-shell.is-learning .learning-workspace .learning-scroll {
+    width: 100%;
+    max-width: 100vw;
+    min-width: 0;
+    grid-column: 1;
+    grid-row: 2;
+    overflow: hidden;
+    padding: 8px 8px 10px;
+  }
+}
+
+@media (max-width: 760px) {
+  .self-study-figure-layout.has-evidence-support .self-study-evidence-rules {
+    grid-template-columns: 1fr;
+  }
+
+  .self-study-figure-layout.has-evidence-support .self-study-evidence-rules > span {
+    grid-column: auto;
+  }
+
+  .self-study-figure-layout.has-evidence-support .self-study-evidence-rules article {
+    border-right: 0;
+    border-bottom: 1px solid #203e52;
+  }
+}

@@ -25,7 +25,7 @@ async function loadFigureModule(): Promise<FigureModule> {
   return await import(sourceUrl.href) as FigureModule;
 }
 
-test('all engineering figure connectors touch declared objects and labels never overlap', async () => {
+test('all engineering figure geometry stays in bounds without object or label collisions', async () => {
   const figures = await loadFigureModule();
   for (const kind of ['topology', 'antenna', 'complaint'] as const) {
     assert.deepEqual(figures.validateEngineeringFigureSpec(kind), [], kind);
@@ -89,6 +89,7 @@ test('engineering figure stylesheet preserves readable dark-engineering labels a
     assert.match(css, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }
   assert.match(css, /\.engineering-mobile-evidence\s*\{[\s\S]*?display:\s*none/);
+  assert.match(css, /@media \(min-width: 761px\) and \(max-width: 900px\)[\s\S]*?\.engineering-figure-canvas svg\s*\{[\s\S]*?min-width:\s*100%/);
   assert.match(css, /@media \(max-width: 760px\)[\s\S]*?\.engineering-figure-canvas svg\s*\{[\s\S]*?display:\s*none/);
   assert.match(css, /@media \(max-width: 760px\)[\s\S]*?\.engineering-mobile-evidence\s*\{[\s\S]*?display:\s*grid/);
   assert.match(css, /@media \(max-width: 760px\)[\s\S]*?\.engineering-mobile-evidence\s*\{[\s\S]*?order:\s*2/);

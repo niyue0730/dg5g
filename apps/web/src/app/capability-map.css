@@ -195,7 +195,7 @@
   .graph-legend { display: none; }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .course-overview { min-height: 560px; grid-template-rows: 52px minmax(0,1fr); }
   .overview-topbar { grid-template-columns: minmax(0,1fr) auto; padding: 0 9px; }.overview-breadcrumb { display: none; }.overview-topbar .scene-brand small { display: none; }.overview-topbar nav > span { display: none; }.overview-logout { min-width: 46px; }
   .semantic-graph-shell {

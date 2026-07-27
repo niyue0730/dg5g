@@ -14,6 +14,7 @@ const dragSurfaceSelector = [
   '.scene-teacher-controls',
   '.scene-follow-controls',
   '.graph-detail-panel',
+  '.engineering-figure-canvas',
   '.self-study-textbook-body',
   '.self-study-sections',
   '.self-study-renderer .self-study-head nav',
