@@ -21,6 +21,7 @@ export interface ProjectionPolicy {
 
 export interface LearningFacts {
   hasActivity: boolean;
+  selfStudyComplete: boolean;
   microPracticePassed: boolean;
   bestFormalTestScore?: number;
   evidenceReviewStatus: EvidenceReviewState;
@@ -66,6 +67,9 @@ export function deriveNodeLearningProjection(
   if (policy.requiresMicroPractice) {
     if (!facts.microPracticePassed) return projection(states, '完成微练习');
     states.push('micro-practice-passed');
+  }
+  if (!facts.selfStudyComplete) {
+    return projection(states, '保存本节点学习记录');
   }
 
   if (policy.requiresFormalTest) {

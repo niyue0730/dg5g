@@ -6,6 +6,7 @@ import { createTestDatabase } from './db/test-database.ts';
 import { LearningReadModel } from './learning-read-model.ts';
 import { getNodeLearningPolicy } from './learning-policy.ts';
 import { LearningRepository } from './learning-repository.ts';
+import { REQUIRED_SELF_STUDY_SECTIONS } from './self-study-sections.ts';
 
 test('only the policy-required passed practice activities satisfy P01 micro-practice', () => {
   const fixture = createTestDatabase();
@@ -24,8 +25,8 @@ test('only the policy-required passed practice activities satisfy P01 micro-prac
         event_id, student_id, node_id, channel, event_type, payload_json, origin
       ) VALUES
         ('arbitrary-pass', 'stu-01', 'P1T1-N01', 'self-study', 'micro_practice_passed', '{}', 'user'),
-        ('all-sections', 'stu-01', 'P1T1-N01', 'self-study', 'section_completed',
-          '{"sectionId":"understand","completed":true}', 'user'),
+        ('first-section', 'stu-01', 'P1T1-N01', 'self-study', 'section_completed',
+          '{"sectionId":"problem","completed":true}', 'user'),
         ('class-submit', 'stu-01', 'P1T1-N01', 'classroom', 'classroom_submitted',
           '{"completed":true}', 'user')
     `);
@@ -34,6 +35,8 @@ test('only the policy-required passed practice activities satisfy P01 micro-prac
     insertPractice.run('passed-remediation', 'P1T1-N02-remediation-revision-01', 'P1T1-N02', 1);
     assert.equal(requiredNode(model.readStudentSnapshot('stu-01'), 'P1T1-N01').state, 'learning');
     insertPractice.run('passed-required', 'P1T1-N01-micro-01', 'P1T1-N01', 1);
+    assert.equal(requiredNode(model.readStudentSnapshot('stu-01'), 'P1T1-N01').state, 'micro-practice-passed');
+    insertCompletedSelfStudy(fixture.database, 'stu-01', 'P1T1-N01');
     assert.equal(requiredNode(model.readStudentSnapshot('stu-01'), 'P1T1-N01').state, 'achieved');
   } finally {
     fixture.cleanup();
@@ -362,6 +365,30 @@ function insertPassedPractice(
       attempt_id, student_id, activity_id, node_id, passed, origin
     ) VALUES (?, ?, ?, ?, 1, ?)
   `).run(`${studentId}-${activityId}${suffix}`, studentId, activityId, nodeId, origin);
+  insertCompletedSelfStudy(database, studentId, nodeId, origin, suffix);
+}
+
+function insertCompletedSelfStudy(
+  database: ReturnType<typeof createTestDatabase>['database'],
+  studentId: string,
+  nodeId: string,
+  origin: 'demo' | 'user' = 'user',
+  suffix = '',
+): void {
+  const insert = database.prepare(`
+    INSERT OR IGNORE INTO learning_events (
+      event_id, student_id, node_id, channel, event_type, payload_json, origin
+    ) VALUES (?, ?, ?, 'self-study', 'section_completed', ?, ?)
+  `);
+  for (const sectionId of REQUIRED_SELF_STUDY_SECTIONS) {
+    insert.run(
+      `${studentId}-${nodeId}-${sectionId}${suffix}`,
+      studentId,
+      nodeId,
+      JSON.stringify({ sectionId, completed: true }),
+      origin,
+    );
+  }
 }
 
 function requiredNode(snapshot: ReturnType<LearningReadModel['readStudentSnapshot']>, nodeId: string) {

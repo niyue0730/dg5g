@@ -29,13 +29,12 @@ import {
 import type { LearningOrigin } from './learning-origin.ts';
 import { getFormalAssessmentValidationPolicy } from './formal-assessment-catalog.server.ts';
 import { validatePersistedAssessmentDiagnostic } from './persisted-assessment-diagnostic.ts';
+import {
+  hasCompletedSelfStudy,
+  REQUIRED_SELF_STUDY_SECTIONS,
+} from './self-study-sections.ts';
 
-export const REQUIRED_SELF_STUDY_SECTIONS = [
-  'understand',
-  'evidence',
-  'explain',
-  'practice',
-] as const;
+export { REQUIRED_SELF_STUDY_SECTIONS } from './self-study-sections.ts';
 
 export interface FormalAttemptProjection {
   attemptId: string;
@@ -154,6 +153,8 @@ function projectStudentLearningFacts(facts: StudentLearningFacts): StudentLearni
     const storedAttempts = preferUserOrigin(facts.attempts.filter(({ nodeId }) => nodeId === policy.nodeId));
     const attempts = storedAttempts.map(toAttemptProjection);
     const sections = completedSections(progressEvents);
+    const selfStudyComplete = hasCompletedSelfStudy(sections);
+    const completedSectionEvents = progressEvents.filter(isCompletedCanonicalSection);
     const classroomSubmitted = progressEvents.some(isCompletedClassroomSubmission);
     const evidence = latestOutputForNode(facts.outputs, policy.nodeId);
     const storedReview = evidence
@@ -184,6 +185,7 @@ function projectStudentLearningFacts(facts: StudentLearningFacts): StudentLearni
     const projection = deriveNodeLearningProjection(policy, {
       hasActivity: progressEvents.length > 0 || practiceAttempts.length > 0
         || storedAttempts.length > 0 || evidence !== undefined,
+      selfStudyComplete,
       microPracticePassed: microPracticePassed(policy.requiredActivityIds, practiceAttempts),
       bestFormalTestScore: bestFormalScore,
       evidenceReviewStatus: evidenceReviewState(evidence, review),
@@ -199,6 +201,7 @@ function projectStudentLearningFacts(facts: StudentLearningFacts): StudentLearni
     const milestoneOriginGroups: Array<Array<{ origin: LearningOrigin }>> = [
       prerequisiteOriginFacts,
       passedPracticeFacts,
+      ...(selfStudyComplete ? [completedSectionEvents] : []),
     ];
     if (projection.stateTrail.includes('formal-test-passed')) {
       milestoneOriginGroups.push(storedAttempts.filter((attempt) => (
@@ -539,6 +542,13 @@ function completedSections(events: StoredLearningEvent[]): string[] {
   }));
   const required = REQUIRED_SELF_STUDY_SECTIONS.filter((sectionId) => completed.delete(sectionId));
   return [...required, ...completed];
+}
+
+function isCompletedCanonicalSection(event: StoredLearningEvent): boolean {
+  if (event.eventType !== 'section_completed' || !isRecord(event.payload)) return false;
+  return event.payload.completed === true
+    && typeof event.payload.sectionId === 'string'
+    && (REQUIRED_SELF_STUDY_SECTIONS as readonly string[]).includes(event.payload.sectionId);
 }
 
 function requiredSnapshot(

@@ -20,7 +20,7 @@ test('reads only the authenticated student snapshot from /api/learning/me', asyn
         nodeId: 'P1T1-N02',
         state: 'formal-test-passed',
         stateTrail: ['learning', 'micro-practice-passed', 'formal-test-passed'],
-        completedSections: ['understand', 'evidence', 'explain', 'practice'],
+        completedSections: ['problem', 'figure', 'steps', 'correction', 'practice', 'output'],
         attempts: [{
           attemptId: 'attempt-1',
           nodeId: 'P1T1-N02',
@@ -113,7 +113,7 @@ test('compatibility projection preserves persisted origins for node, attempts, t
       nodeId: 'P1T1-N02',
       state: 'formal-test-passed',
       stateTrail: ['learning', 'micro-practice-passed', 'formal-test-passed'],
-      completedSections: ['understand', 'evidence', 'explain', 'practice'],
+      completedSections: ['problem', 'figure', 'steps', 'correction', 'practice', 'output'],
       classroomSubmitted: false,
       attempts: [{
         attemptId: 'demo-formal-attempt',
@@ -241,7 +241,7 @@ test('records a learning event with optimistic version through the node events c
     nodeId: 'P1T1-N01',
     channel: 'self-study',
     type: 'section_completed',
-    sectionId: 'understand',
+    sectionId: 'problem',
     completed: true,
     at: '2026-07-15T11:00:00.000Z',
   }, 7);
@@ -251,7 +251,7 @@ test('records a learning event with optimistic version through the node events c
     eventId: 'event-section-1',
     channel: 'self-study',
     eventType: 'section_completed',
-    payload: { sectionId: 'understand', completed: true },
+    payload: { sectionId: 'problem', completed: true },
     occurredAt: '2026-07-15T11:00:00.000Z',
     expectedVersion: 7,
   });
@@ -302,7 +302,7 @@ test('does not invent a passed formal test for an achieved node without a formal
       nodeId: 'P1T1-N04',
       state: 'achieved',
       stateTrail: ['learning', 'micro-practice-passed', 'evidence-submitted', 'awaiting-review', 'teacher-verified', 'achieved'],
-      completedSections: ['understand', 'evidence', 'explain', 'practice'],
+      completedSections: ['problem', 'figure', 'steps', 'correction', 'practice', 'output'],
       classroomSubmitted: false,
       attempts: [],
       prerequisites: [{ nodeId: 'P1T1-N03', condition: 'achieved', state: 'achieved', met: true }],

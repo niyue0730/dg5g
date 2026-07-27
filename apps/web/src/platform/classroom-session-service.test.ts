@@ -9,6 +9,7 @@ import { ClassroomSessionRepository } from './classroom-session-repository.ts';
 import { ClassroomRosterRepository } from './classroom-roster-repository.ts';
 import { getNodeLearningPolicy } from './learning-policy.ts';
 import { FormalAssessmentService, type AssessmentAnswers } from './formal-assessment-service.ts';
+import { REQUIRED_SELF_STUDY_SECTIONS } from './self-study-sections.ts';
 
 const teacher: AuthenticatedActor = {
   userId: 'teacher-01',
@@ -562,6 +563,38 @@ test('startLesson atomically reopens the classroom at a fresh published teaching
   }
 });
 
+test('startLesson uses each published N04 source knowledge unit instead of deriving ku-04', () => {
+  const cases = [
+    ['P1T1-N04', 'P01-ku-06'],
+    ['P1T2-N04', 'P02-ku-06'],
+    ['P1T3-N04', 'P03-ku-06'],
+  ] as const;
+
+  for (const [nodeId, unitId] of cases) {
+    const fixture = createTestDatabase();
+    try {
+      migrateDatabase(fixture.database);
+      seedDemo(fixture.database);
+      const service = new ClassroomSessionService(
+        new ClassroomSessionRepository(fixture.database),
+        new ClassroomRosterRepository(fixture.database),
+      );
+
+      const result = service.startLesson(
+        teacher,
+        'demo-class',
+        { nodeId, expectedRevision: 0 },
+      );
+
+      assert.equal(result.session.activeUnitId, unitId);
+      assert.equal(result.session.lessonState?.activeUnitId, unitId);
+      assert.equal(result.command.unitId, unitId);
+    } finally {
+      fixture.cleanup();
+    }
+  }
+});
+
 test('startLesson rejects unknown and unpublished nodes without mutating SQLite', () => {
   const fixture = createTestDatabase();
   try {
@@ -704,6 +737,21 @@ function readyForFormalAssessment(database: ReturnType<typeof createTestDatabase
     ['P1T1-N02-application-01', 'P1T1-N02'],
     ['P1T1-N02-transfer-01', 'P1T1-N02'],
   ] as const) insert.run(`ready-${studentId}-${activityId}`, studentId, activityId, nodeId);
+  const insertSection = database.prepare(`
+    INSERT INTO learning_events (
+      event_id, student_id, node_id, channel, event_type, payload_json, origin
+    ) VALUES (?, ?, ?, 'self-study', 'section_completed', ?, 'user')
+  `);
+  for (const nodeId of ['P1T1-N01', 'P1T1-N02']) {
+    for (const sectionId of REQUIRED_SELF_STUDY_SECTIONS) {
+      insertSection.run(
+        `ready-${studentId}-${nodeId}-${sectionId}`,
+        studentId,
+        nodeId,
+        JSON.stringify({ sectionId, completed: true }),
+      );
+    }
+  }
 }
 
 function setStrictClassroomHelper(enabled: boolean): () => void {

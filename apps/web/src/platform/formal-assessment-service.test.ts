@@ -26,6 +26,7 @@ import {
 } from './formal-assessment-service.ts';
 import { getFormalAssessmentDefinition } from './formal-assessment-catalog.server.ts';
 import { ClassroomSessionRepository } from './classroom-session-repository.ts';
+import { REQUIRED_SELF_STUDY_SECTIONS } from './self-study-sections.ts';
 
 const studentOne: AuthenticatedActor = {
   userId: 'stu-01',
@@ -508,7 +509,7 @@ test('requires real post-failure passed activities and unlocks only after every 
     );
 
     let snapshot = learning.readStudentSnapshot(studentOne);
-    for (const [index, sectionId] of ['understand', 'evidence', 'explain', 'practice'].entries()) {
+    for (const [index, sectionId] of REQUIRED_SELF_STUDY_SECTIONS.entries()) {
       snapshot = learning.appendEvent(studentOne, {
         eventId: `generic-node-complete-${index}`,
         nodeId: 'P1T1-N02',
@@ -717,6 +718,21 @@ function passRequiredActivities(
   `);
   for (const [activityId, nodeId] of activities) {
     insert.run(`test-ready-${studentId}-${activityId}`, studentId, activityId, nodeId);
+  }
+  const insertSection = database.prepare(`
+    INSERT OR IGNORE INTO learning_events (
+      event_id, student_id, node_id, channel, event_type, payload_json, origin
+    ) VALUES (?, ?, ?, 'self-study', 'section_completed', ?, 'user')
+  `);
+  for (const nodeId of new Set(activities.map(([, nodeId]) => nodeId))) {
+    for (const sectionId of REQUIRED_SELF_STUDY_SECTIONS) {
+      insertSection.run(
+        `test-ready-${studentId}-${nodeId}-${sectionId}`,
+        studentId,
+        nodeId,
+        JSON.stringify({ sectionId, completed: true }),
+      );
+    }
   }
 }
 

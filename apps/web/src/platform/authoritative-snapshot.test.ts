@@ -13,6 +13,7 @@ import {
   AuthoritativeSnapshotReader,
   type AuthoritativeSnapshot,
 } from './authoritative-snapshot.ts';
+import { REQUIRED_SELF_STUDY_SECTIONS } from './self-study-sections.ts';
 
 const now = new Date('2026-07-16T01:20:00.000Z');
 
@@ -581,6 +582,21 @@ function readyForFormalAssessment(database: ReturnType<typeof createTestDatabase
     ['P1T1-N02-application-01', 'P1T1-N02'],
     ['P1T1-N02-transfer-01', 'P1T1-N02'],
   ] as const) insert.run(`ready-${studentId}-${activityId}`, studentId, activityId, nodeId);
+  const insertSection = database.prepare(`
+    INSERT INTO learning_events (
+      event_id, student_id, node_id, channel, event_type, payload_json, origin
+    ) VALUES (?, ?, ?, 'self-study', 'section_completed', ?, 'user')
+  `);
+  for (const nodeId of ['P1T1-N01', 'P1T1-N02']) {
+    for (const sectionId of REQUIRED_SELF_STUDY_SECTIONS) {
+      insertSection.run(
+        `ready-${studentId}-${nodeId}-${sectionId}`,
+        studentId,
+        nodeId,
+        JSON.stringify({ sectionId, completed: true }),
+      );
+    }
+  }
 }
 
 function wrongAssessmentAnswers(): AssessmentAnswers {

@@ -14,10 +14,10 @@ test('applies ordered migrations once and replays idempotently', () => {
       'SELECT version FROM schema_migrations ORDER BY version',
     ).all() as Array<{ version: number }>;
 
-    assert.deepEqual(first.appliedVersions, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
+    assert.deepEqual(first.appliedVersions, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
     assert.deepEqual(replay.appliedVersions, []);
-    assert.equal(replay.currentVersion, 13);
-    assert.deepEqual(recorded.map(({ version }) => version), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
+    assert.equal(replay.currentVersion, 14);
+    assert.deepEqual(recorded.map(({ version }) => version), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
   } finally {
     testDatabase.cleanup();
   }
@@ -27,10 +27,10 @@ test('rejects a database whose schema version is newer than this runtime', () =>
   const testDatabase = createTestDatabase();
 
   try {
-    testDatabase.database.pragma('user_version = 14');
+    testDatabase.database.pragma('user_version = 15');
     assert.throws(
       () => migrateDatabase(testDatabase.database),
-      /schema version 14 is newer than supported version 13/i,
+      /schema version 15 is newer than supported version 14/i,
     );
   } finally {
     testDatabase.cleanup();
@@ -45,7 +45,7 @@ test('rejects migration history ahead of PRAGMA user_version', () => {
     testDatabase.database.pragma('user_version = 10');
     assert.throws(
       () => migrateDatabase(testDatabase.database),
-      /migration history version 13 does not match PRAGMA user_version 10/i,
+      /migration history version 14 does not match PRAGMA user_version 10/i,
     );
   } finally {
     testDatabase.cleanup();
@@ -57,10 +57,10 @@ test('rejects PRAGMA user_version ahead of migration history', () => {
 
   try {
     migrateDatabase(testDatabase.database);
-    testDatabase.database.prepare('DELETE FROM schema_migrations WHERE version = 13').run();
+    testDatabase.database.prepare('DELETE FROM schema_migrations WHERE version = 14').run();
     assert.throws(
       () => migrateDatabase(testDatabase.database),
-      /migration history version 12 does not match PRAGMA user_version 13/i,
+      /migration history version 13 does not match PRAGMA user_version 14/i,
     );
   } finally {
     testDatabase.cleanup();
@@ -74,11 +74,11 @@ test('rejects migration history versions unsupported by this runtime', () => {
     migrateDatabase(testDatabase.database);
     testDatabase.database.prepare(`
       INSERT INTO schema_migrations (version, name, checksum)
-        VALUES (14, 'unexpected', 'unexpected')
+        VALUES (15, 'unexpected', 'unexpected')
     `).run();
     assert.throws(
       () => migrateDatabase(testDatabase.database),
-      /migration history contains unsupported version 14/i,
+      /migration history contains unsupported version 15/i,
     );
   } finally {
     testDatabase.cleanup();
@@ -311,7 +311,7 @@ test('migration 005 promotes legacy content to immutable canonical output v1', (
     `);
 
     const result = migrateDatabase(testDatabase.database);
-    assert.deepEqual(result.appliedVersions, [5, 6, 7, 8, 9, 10, 11, 12, 13]);
+    assert.deepEqual(result.appliedVersions, [5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
     assert.deepEqual(testDatabase.database.prepare(`
       SELECT
         task_id AS taskId,
@@ -408,7 +408,7 @@ test('migration 006 backfills classroom revision topics without rolling a newer 
     `);
 
     const result = migrateDatabase(testDatabase.database);
-    assert.deepEqual(result.appliedVersions, [6, 7, 8, 9, 10, 11, 12, 13]);
+    assert.deepEqual(result.appliedVersions, [6, 7, 8, 9, 10, 11, 12, 13, 14]);
     assert.deepEqual(testDatabase.database.prepare(`
       SELECT version, updated_at AS updatedAt
       FROM snapshot_versions WHERE topic = 'classroom:session-revision-7'
@@ -446,8 +446,8 @@ test('migration 008 upgrades a v5 cursor row to the per-student per-node key wit
     `);
 
     const result = migrateDatabase(testDatabase.database);
-    assert.deepEqual(result.appliedVersions, [6, 7, 8, 9, 10, 11, 12, 13]);
-    assert.equal(result.currentVersion, 13);
+    assert.deepEqual(result.appliedVersions, [6, 7, 8, 9, 10, 11, 12, 13, 14]);
+    assert.equal(result.currentVersion, 14);
     const columns = testDatabase.database.prepare(`
       PRAGMA table_info(self_study_cursors)
     `).all() as Array<{ name: string; pk: number }>;
@@ -638,6 +638,58 @@ test('migration 011 gives every student assessment instance an optional shared c
       SELECT name FROM pragma_index_list('formal_assessment_instances')
     `).pluck().all() as string[]);
     assert.equal(indexes.has('formal_assessment_instances_classroom_run_idx'), true);
+  } finally {
+    testDatabase.cleanup();
+  }
+});
+
+test('migration 014 repairs persisted N04 classroom units without changing other teaching positions', () => {
+  const testDatabase = createTestDatabase();
+
+  try {
+    applyMigrationsThrough(testDatabase.database, 13);
+    testDatabase.database.exec(`
+      INSERT INTO users (id, username, display_name, role, password_hash)
+      VALUES ('teacher-v14', 'teacher-v14', 'Teacher v14', 'teacher', 'disabled');
+      INSERT INTO classroom_sessions (
+        session_id, class_id, name, teacher_id, active_node_id, active_unit_id
+      ) VALUES
+        ('session-p01-n04', 'class-v14', 'P01 N04', 'teacher-v14', 'P1T1-N04', 'P01-ku-04'),
+        ('session-p02-n04', 'class-v14', 'P02 N04', 'teacher-v14', 'P1T2-N04', 'P02-ku-04'),
+        ('session-p03-n04', 'class-v14', 'P03 N04', 'teacher-v14', 'P1T3-N04', 'P03-ku-04'),
+        ('session-p01-n03', 'class-v14', 'P01 N03', 'teacher-v14', 'P1T1-N03', 'P01-ku-03');
+      INSERT INTO classroom_commands (
+        command_id, session_id, revision, kind, payload_json
+      ) VALUES
+        ('command-p01-n04', 'session-p01-n04', 1, 'sync',
+          '{"nodeId":"P1T1-N04","unitId":"P01-ku-04"}'),
+        ('command-p01-n03', 'session-p01-n03', 1, 'sync',
+          '{"nodeId":"P1T1-N03","unitId":"P01-ku-03"}');
+    `);
+
+    const result = migrateDatabase(testDatabase.database);
+
+    assert.deepEqual(result.appliedVersions, [14]);
+    assert.deepEqual(testDatabase.database.prepare(`
+      SELECT active_node_id AS nodeId, active_unit_id AS unitId
+      FROM classroom_sessions
+      ORDER BY session_id
+    `).all(), [
+      { nodeId: 'P1T1-N03', unitId: 'P01-ku-03' },
+      { nodeId: 'P1T1-N04', unitId: 'P01-ku-06' },
+      { nodeId: 'P1T2-N04', unitId: 'P02-ku-06' },
+      { nodeId: 'P1T3-N04', unitId: 'P03-ku-06' },
+    ]);
+    assert.deepEqual(testDatabase.database.prepare(`
+      SELECT
+        json_extract(payload_json, '$.nodeId') AS nodeId,
+        json_extract(payload_json, '$.unitId') AS unitId
+      FROM classroom_commands
+      ORDER BY command_id
+    `).all(), [
+      { nodeId: 'P1T1-N03', unitId: 'P01-ku-03' },
+      { nodeId: 'P1T1-N04', unitId: 'P01-ku-06' },
+    ]);
   } finally {
     testDatabase.cleanup();
   }

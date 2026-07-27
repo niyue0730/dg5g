@@ -238,7 +238,10 @@ function findContentNode(content: P1DemoContent, nodeId: string) {
 
 function teachingPosition(content: P1DemoContent, nodeId: string, unitId: string | null) {
   const found = findContentNode(content, nodeId);
-  if (!found || getNodeLearningPolicy(nodeId)?.publicationStatus !== 'published') return undefined;
+  const policy = getNodeLearningPolicy(nodeId);
+  if (!found
+    || policy?.publicationStatus !== 'published'
+    || (unitId !== null && unitId !== policy.sourceKnowledgeUnitId)) return undefined;
   return {
     projectId: content.project.id,
     projectTitle: content.project.title,

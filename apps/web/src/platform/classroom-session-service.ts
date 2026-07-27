@@ -109,7 +109,7 @@ export class ClassroomSessionService {
       throw new ClassroomIntentError(`Classroom node is not published: ${input.nodeId}.`);
     }
     const activeNodeId = policy.nodeId;
-    const activeUnitId = `${policy.taskId}-ku-${policy.nodeId.slice(-2)}`;
+    const activeUnitId = policy.sourceKnowledgeUnitId;
     const nextRevision = input.expectedRevision + 1;
     const lesson = initialLessonState(activeNodeId, activeUnitId);
     const formalDefinition = getFormalAssessmentDefinition(activeNodeId);
@@ -522,7 +522,7 @@ function assertTeachingPosition(activeNodeId: string, activeUnitId: string): voi
   if (!policy || policy.publicationStatus !== 'published') {
     throw new ClassroomIntentError(`Classroom node is not published: ${activeNodeId}.`);
   }
-  const expectedUnitId = `${policy.taskId}-ku-${activeNodeId.slice(-2)}`;
+  const expectedUnitId = policy.sourceKnowledgeUnitId;
   if (activeUnitId !== expectedUnitId) {
     throw new ClassroomIntentError(
       `Classroom unit ${activeUnitId} does not belong to ${activeNodeId}.`,

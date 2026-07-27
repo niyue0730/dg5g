@@ -9,14 +9,13 @@ import { AUTH_COOKIE_NAME } from './auth/cookie.ts';
 import { closeDatabase, type AppDatabase } from './db/database.ts';
 import { seedDemo } from './db/demo-seed.ts';
 import { migrateDatabase } from './db/migrations.ts';
-import { createTestDatabase } from './db/test-database.ts';
+import { createTestDatabase, insertCompletedSelfStudySections } from './db/test-database.ts';
 import { LearningRepository } from './learning-repository.ts';
 import { loadSelfStudyCatalog } from '../features/textbook-scene/self-study-content.ts';
 import { professionalOutputSchemaForTask } from '../features/portfolio/output-schema.ts';
 import { p01Activities } from '../features/learning-activities/activity-catalog.ts';
 import { p01EvidenceLibrary } from '../features/portfolio/evidence-library.ts';
 import { ActivityRepository } from '../features/learning-activities/activity-repository.ts';
-
 registerHooks({
   resolve(specifier, context, nextResolve) {
     if (specifier === 'next/server') return nextResolve('next/server.js', context);
@@ -477,7 +476,7 @@ test('event POST derives student identity only from the HttpOnly session actor',
         studentId: 'stu-02',
         channel: 'self-study',
         eventType: 'section_completed',
-        payload: { sectionId: 'evidence', completed: true },
+        payload: { sectionId: 'figure', completed: true },
         expectedVersion: before,
       }),
     }), { params: { nodeId: 'P1T1-N02' } });
@@ -632,7 +631,7 @@ test('event ID replay stays 200 while the retired attempt route rejects score re
       eventId: 'route-idempotent-event',
       channel: 'self-study',
       eventType: 'section_completed',
-      payload: { sectionId: 'understand', completed: true },
+      payload: { sectionId: 'problem', completed: true },
       expectedVersion: initialVersion,
     };
     const firstEvent = await eventRoute.POST(jsonRequest(
@@ -724,6 +723,7 @@ async function withAuthenticatedFixture(
     migrateDatabase(fixture.database);
     seedDemo(fixture.database);
     passRequiredPractice(fixture.database, 'stu-01', 'P1T1-N01-micro-01', 'P1T1-N01');
+    insertCompletedSelfStudySections(fixture.database, 'stu-01', 'P1T1-N01');
     process.env.DGBOOK_SQLITE_PATH = fixture.databasePath;
     closeDatabase();
     const auth = new AuthService(fixture.database);

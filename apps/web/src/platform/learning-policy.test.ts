@@ -28,6 +28,7 @@ test('P1 exposes twelve policies with N02 tests and N04 output review gates', ()
     assert.equal(testPolicy.formalPassScore, 80);
 
     const outputPolicy = getNodeLearningPolicy(`${prefix}-N04`)!;
+    assert.equal(outputPolicy.sourceKnowledgeUnitId, `${outputPolicy.taskId}-ku-06`);
     assert.equal(outputPolicy.assessmentRole, 'none');
     assert.equal(outputPolicy.requiresFormalTest, false);
     assert.equal(outputPolicy.formalPassScore, undefined);
@@ -47,6 +48,7 @@ test('task-end state records output submission and certification without a secon
   const tested = deriveNodeLearningProjection(policy, {
     prerequisiteMet: true,
     hasActivity: true,
+    selfStudyComplete: true,
     microPracticePassed: true,
     evidenceReviewStatus: 'not-submitted',
   });
@@ -57,6 +59,7 @@ test('task-end state records output submission and certification without a secon
   const submitted = deriveNodeLearningProjection(policy, {
     prerequisiteMet: true,
     hasActivity: true,
+    selfStudyComplete: true,
     microPracticePassed: true,
     evidenceReviewStatus: 'submitted',
   });
@@ -66,6 +69,7 @@ test('task-end state records output submission and certification without a secon
   const returned = deriveNodeLearningProjection(policy, {
     prerequisiteMet: true,
     hasActivity: true,
+    selfStudyComplete: true,
     microPracticePassed: true,
     evidenceReviewStatus: 'returned',
   });
@@ -74,6 +78,7 @@ test('task-end state records output submission and certification without a secon
   const verified = deriveNodeLearningProjection(policy, {
     prerequisiteMet: true,
     hasActivity: true,
+    selfStudyComplete: true,
     microPracticePassed: true,
     evidenceReviewStatus: 'verified',
   });
@@ -86,6 +91,7 @@ test('ordinary node skips output review only because its policy says so', () => 
   const projection = deriveNodeLearningProjection(policy, {
     prerequisiteMet: true,
     hasActivity: true,
+    selfStudyComplete: true,
     microPracticePassed: true,
     evidenceReviewStatus: 'not-submitted',
   });

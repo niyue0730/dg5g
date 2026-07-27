@@ -446,22 +446,24 @@ async function assertCapabilityGraph(context) {
 async function assertIsolatedMutation(context) {
   const beforeResponse = await context.request.get(api('/api/snapshot?audience=student&sessionId=demo-class'));
   const before = await beforeResponse.json();
-  const eventId = `runtime-audit:${before.me.studentId}:P1T1-N02:evidence`;
-  const response = await context.request.post(api('/api/learning/nodes/P1T1-N02/events'), {
-    data: {
-      eventId,
-      channel: 'self-study',
-      eventType: 'section_completed',
-      payload: { sectionId: 'evidence', completed: true },
-      expectedVersion: before.me.studentVersion,
-    },
-  });
-  assert(response.ok(), `isolated learning mutation returned ${response.status()}`);
-  const afterResponse = await context.request.get(api('/api/snapshot?audience=student&sessionId=demo-class'));
-  const after = await afterResponse.json();
+  let after = before;
+  for (const sectionId of ['problem', 'figure', 'steps', 'correction', 'practice', 'output']) {
+    const response = await context.request.post(api('/api/learning/nodes/P1T1-N02/events'), {
+      data: {
+        eventId: `runtime-audit:${before.me.studentId}:P1T1-N02:${sectionId}`,
+        channel: 'self-study',
+        eventType: 'section_completed',
+        payload: { sectionId, completed: true },
+        expectedVersion: after.me.studentVersion,
+      },
+    });
+    assert(response.ok(), `isolated learning mutation returned ${response.status()}`);
+    const afterResponse = await context.request.get(api('/api/snapshot?audience=student&sessionId=demo-class'));
+    after = await afterResponse.json();
+  }
   assert(after.snapshotVersion > before.snapshotVersion, 'isolated mutation did not advance the authoritative snapshot version');
   assert(after.me.studentVersion > before.me.studentVersion, 'isolated mutation did not advance the student snapshot version');
-  checks.push({ name: 'isolated mutation', status: 'passed', eventId, snapshotVersion: after.snapshotVersion });
+  checks.push({ name: 'isolated mutation', status: 'passed', snapshotVersion: after.snapshotVersion });
 }
 
 async function expectStatus(context, route, expected, name) {

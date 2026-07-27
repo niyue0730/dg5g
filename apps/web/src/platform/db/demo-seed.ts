@@ -16,6 +16,7 @@ import { hashPassword, verifyPassword } from '../auth/password.ts';
 import { getFormalAssessmentValidationPolicy } from '../formal-assessment-catalog.server.ts';
 import { validatePersistedAssessmentDiagnostic } from '../persisted-assessment-diagnostic.ts';
 import { SnapshotClock } from '../snapshot-clock.ts';
+import { REQUIRED_SELF_STUDY_SECTIONS } from '../self-study-sections.ts';
 import type { AppDatabase } from './database.ts';
 import { upgradeLegacyDemoV8Facts } from './legacy-demo-v8-upgrade.ts';
 
@@ -360,6 +361,22 @@ export function seedDemo(database: AppDatabase, seed = readDemoSeed()): void {
     upgradeLegacyDemoV8Facts(database, DEMO_STUDENT_IDS);
     for (const event of seed.demo.events) {
       upsertEvent.run({ ...event, payloadJson: JSON.stringify(event.payload) });
+    }
+    const demoLearningNodes = new Set(seed.demo.practiceAttempts.map(({ studentId, nodeId }) => (
+      `${studentId}:${nodeId}`
+    )));
+    for (const key of demoLearningNodes) {
+      const [studentId, nodeId] = key.split(':') as [string, string];
+      for (const sectionId of REQUIRED_SELF_STUDY_SECTIONS) {
+        upsertEvent.run({
+          eventId: `demo-${studentId}-${nodeId}-section-${sectionId}`,
+          studentId,
+          nodeId,
+          channel: 'self-study',
+          eventType: 'section_completed',
+          payloadJson: JSON.stringify({ sectionId, completed: true }),
+        });
+      }
     }
     for (const attempt of seed.demo.practiceAttempts) {
       const definition = readActivityDefinition(attempt.activityId);

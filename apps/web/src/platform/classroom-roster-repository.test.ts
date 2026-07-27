@@ -100,8 +100,8 @@ test('projects persisted learning events without inventing scores', () => {
     const studentThree = roster.find(({ studentId }) => studentId === 'stu-03');
 
     assert.equal(studentOne?.selfStudyState, 'not_started');
-    assert.equal(studentTwo?.selfStudyState, 'not_started');
-    assert.equal(studentThree?.selfStudyState, 'not_started');
+    assert.equal(studentTwo?.selfStudyState, 'completed');
+    assert.equal(studentThree?.selfStudyState, 'completed');
     assert.equal(studentOne?.bestGameScore, undefined);
     assert.equal(studentTwo?.bestGameScore, undefined);
     assert.equal(studentThree?.bestGameScore, undefined);

@@ -14,6 +14,7 @@ export type PublicationStatus = 'published' | 'not-open';
 export interface NodeLearningPolicy {
   nodeId: P1NodeId;
   taskId: P1TaskId;
+  sourceKnowledgeUnitId: string;
   publicationStatus: PublicationStatus;
   prerequisites: LearningPrerequisite[];
   /** @deprecated Legacy readers use this until the SQLite service migration is complete. */
@@ -31,6 +32,7 @@ export interface NodeLearningPolicy {
 export interface NodeLearningSignals {
   prerequisiteMet: boolean;
   hasActivity: boolean;
+  selfStudyComplete: boolean;
   microPracticePassed: boolean;
   bestFormalTestScore?: number;
   evidenceReviewStatus: EvidenceReviewState;
@@ -93,6 +95,7 @@ export const nodeLearningPolicies: NodeLearningPolicy[] = taskDefinitions.flatMa
     return {
       nodeId,
       taskId: task.taskId,
+      sourceKnowledgeUnitId: `${task.taskId}-ku-${index === 4 ? '06' : `0${index}`}`,
       publicationStatus: 'published',
       prerequisites,
       prerequisiteNodeIds: prerequisites.map((item) => item.nodeId),

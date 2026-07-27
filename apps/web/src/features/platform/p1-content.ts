@@ -370,6 +370,11 @@ function validateP1DemoContent(value: unknown): P1DemoContent {
 
       exactValue(node.id, expectedNodeId, `${nodePath}.id`);
       exactValue(node.sourceKnowledgeUnitId, spec.sourceUnitIds[nodeIndex], `${nodePath}.sourceKnowledgeUnitId`);
+      exactValue(
+        node.sourceKnowledgeUnitId,
+        policy.sourceKnowledgeUnitId,
+        `${nodePath}.sourceKnowledgeUnitId`,
+      );
       const sourceUnit = sourceUnits.get(spec.sourceUnitIds[nodeIndex]!);
       if (!sourceUnit) invalid(`${nodePath}.sourceKnowledgeUnitId`, 'source knowledge unit is missing from lesson AST');
       exactValue(node.title, sourceUnit.title, `${nodePath}.title`);

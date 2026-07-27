@@ -9,9 +9,9 @@ import { getDatabase, type AppDatabase } from './db/database.ts';
 import { getNodeLearningPolicy } from './learning-policy.ts';
 import {
   LearningReadModel,
-  REQUIRED_SELF_STUDY_SECTIONS,
   type StudentLearningSnapshot,
 } from './learning-read-model.ts';
+import { REQUIRED_SELF_STUDY_SECTIONS } from './self-study-sections.ts';
 import {
   LearningFactIdConflictError,
   LearningRepository,

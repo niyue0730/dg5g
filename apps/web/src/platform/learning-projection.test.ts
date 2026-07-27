@@ -11,6 +11,7 @@ import { nodeLearningStateLabel } from './learning-status.ts';
 
 const inactiveFacts: LearningFacts = {
   hasActivity: false,
+  selfStudyComplete: false,
   microPracticePassed: false,
   evidenceReviewStatus: 'not-submitted',
 };
@@ -42,6 +43,7 @@ test('task output ignores formal scores and waits for the professional output', 
   const policy = getNodeLearningPolicy('P1T1-N04')!;
   const projection = deriveNodeLearningProjection(policy, {
     hasActivity: true,
+    selfStudyComplete: true,
     microPracticePassed: true,
     bestFormalTestScore: 100,
     evidenceReviewStatus: 'not-submitted',
@@ -58,6 +60,7 @@ test('returned output keeps submission history and returns to review after resub
   const prerequisite = [progress('P1T1-N03', { achieved: true })];
   const facts = {
     hasActivity: true,
+    selfStudyComplete: true,
     microPracticePassed: true,
     bestFormalTestScore: 86,
   } as const;
@@ -86,9 +89,18 @@ test('ordinary nodes skip stages only because policy explicitly disables them', 
   const available = deriveNodeLearningProjection(policy, inactiveFacts, []);
   assert.equal(available.state, 'available');
 
+  const practiced = deriveNodeLearningProjection(policy, {
+    ...inactiveFacts,
+    hasActivity: true,
+    microPracticePassed: true,
+  }, []);
+  assert.equal(practiced.state, 'micro-practice-passed');
+  assert.equal(practiced.nextRequirement, '保存本节点学习记录');
+
   const achieved = deriveNodeLearningProjection(policy, {
     ...inactiveFacts,
     hasActivity: true,
+    selfStudyComplete: true,
     microPracticePassed: true,
   }, []);
   assert.equal(achieved.state, 'achieved');
