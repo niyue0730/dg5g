@@ -138,8 +138,8 @@ test('P1T1-N01 renders an engineering scope relation figure instead of plain tex
   assert.match(html, /data-scope-flow="identity-to-room"/);
   assert.match(html, /data-scope-flow="exclude-to-rack"/);
   assert.doesNotMatch(html, /data-scope-flow="collection-to-boundary"/);
-  assert.match(html, /<text x="30" y="29">他网<\/text>/);
-  assert.match(html, /<text x="30" y="61">柜<\/text>/);
+  assert.match(html, /<text x="25" y="24">他网<\/text>/);
+  assert.match(html, /<text x="25" y="50">柜<\/text>/);
   const css = readFileSync(new URL('../../app/self-study-textbook.css', import.meta.url), 'utf8');
   assert.match(css, /\.self-study-figure-layout\.is-full-width\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\)/);
   const scopeCss = readFileSync(new URL('../../app/self-study-scope-map.css', import.meta.url), 'utf8');

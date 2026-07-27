@@ -80,10 +80,9 @@
 }
 
 .self-study-scope-map .scope-collection-boundary {
-  fill: rgba(45, 212, 191, 0.06);
+  fill: rgba(45, 212, 191, 0.11);
   stroke: rgba(97, 240, 220, 0.95);
-  stroke-width: 3;
-  stroke-dasharray: 10 8;
+  stroke-width: 2;
 }
 
 .self-study-scope-map .scope-boundary-label-box {
@@ -98,10 +97,9 @@
 }
 
 .self-study-scope-map .scope-rack-exclusion-zone {
-  fill: rgba(251, 146, 60, 0.07);
+  fill: rgba(251, 146, 60, 0.11);
   stroke: rgba(251, 146, 60, 0.88);
-  stroke-width: 3;
-  stroke-dasharray: 8 7;
+  stroke-width: 2;
 }
 
 .self-study-scope-map .scope-rack-exclusion-label-box {
