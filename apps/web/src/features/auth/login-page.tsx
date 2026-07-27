@@ -10,7 +10,7 @@ type LoginPageProps = {
   nextPath?: string;
 };
 
-const DEFAULT_ACCOUNT = 'student01';
+const DEFAULT_ACCOUNT = 'student03';
 const TRANSIENT_LOGIN_STATUSES = [502, 503, 504] as const;
 
 export function LoginPage({ nextPath }: LoginPageProps) {
@@ -79,7 +79,8 @@ export function LoginPage({ nextPath }: LoginPageProps) {
           <div><strong>进入教材</strong><small>输入账号和密码，身份由系统自动识别</small></div>
         </header>
         <div className="login-demo-hint" aria-label="演示账号说明">
-          <p><strong>学生账号</strong><span>student01 · student02 · student03</span></p>
+          <p><strong>完整演示</strong><span>student03 · P1全部内容与成果</span></p>
+          <p><strong>过程演示</strong><span>student01 从零学习 · student02 退回修订</span></p>
           <p><strong>教师账号</strong><span>teacher01</span></p>
           <small>以上账号默认密码：123456</small>
         </div>

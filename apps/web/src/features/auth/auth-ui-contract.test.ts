@@ -57,6 +57,8 @@ test('login explains demo credentials without client-side role or account shortc
   assert.match(loginPage, /router\.replace\(payload\.home\)/, 'the server response selects the destination role home');
   assert.match(loginPage, /requestLoginWithRetry/, 'login retries a transient gateway failure once');
   assert.match(loginPage, /\[502, 503, 504\]/, 'only transient gateway failures are retried');
+  assert.match(loginPage, /DEFAULT_ACCOUNT = 'student03'/, 'the complete P1 persona is the default demo account');
+  assert.match(loginPage, /student03 · P1全部内容与成果/, 'the login surface names the no-exercise showcase account');
 });
 
 test('every protected server page authorizes before loading protected data', () => {

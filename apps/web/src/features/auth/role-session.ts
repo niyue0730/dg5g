@@ -18,9 +18,9 @@ export interface DemoAccountShortcut {
 
 export const demoAccountShortcuts: readonly DemoAccountShortcut[] = [
   { username: 'teacher01', label: '张老师', role: 'teacher' },
-  { username: 'student01', label: '学生一', role: 'student' },
-  { username: 'student02', label: '学生二', role: 'student' },
-  { username: 'student03', label: '学生三', role: 'student' },
+  { username: 'student01', label: '学生一 · 从零学习', role: 'student' },
+  { username: 'student02', label: '学生二 · 退回修订', role: 'student' },
+  { username: 'student03', label: '学生三 · 完整演示', role: 'student' },
 ] as const;
 
 export const roleHome = roleHomes;
