@@ -23,6 +23,8 @@ export function SelfStudyRenderer({ document, completed, saving, onComplete, ini
   const [passedPracticeIds, setPassedPracticeIds] = useState<string[]>([]);
   const textbookBodyRef = useRef<HTMLDivElement>(null);
   const activeIndex = selfStudySectionDefinitions.findIndex(({ id }) => id === activeSection);
+  const activeDefinition = selfStudySectionDefinitions[activeIndex]!;
+  const nextDefinition = selfStudySectionDefinitions[activeIndex + 1];
   const requiredPracticeIds = useMemo(() => requiredPracticeIdsFor(document), [document]);
   const practiceComplete = completed || requiredPracticeIds.every((id) => passedPracticeIds.includes(id));
   const isTaskEvidenceNode = document.nodeId.endsWith('-N04');
@@ -109,10 +111,12 @@ export function SelfStudyRenderer({ document, completed, saving, onComplete, ini
       </div>
 
       <footer className="learning-scene-footer self-study-footer">
-        <div>
-          <button aria-label="上一学习段" disabled={activeIndex === 0} onClick={() => moveSection(-1)} type="button"><Icon name="arrow" size={16} /></button>
-          <span>{activeIndex + 1} / {selfStudySectionDefinitions.length}</span>
-          <button aria-label="下一学习段" disabled={activeIndex === selfStudySectionDefinitions.length - 1} onClick={() => moveSection(1)} type="button"><Icon name="arrow" size={16} /></button>
+        <div className="self-study-section-position">
+          <button aria-label="返回上一学习段" className="self-study-previous"
+            disabled={activeIndex === 0} onClick={() => moveSection(-1)} type="button">
+            <Icon name="arrow" size={16} />上一段
+          </button>
+          <span>第 {activeIndex + 1} 段 / {selfStudySectionDefinitions.length} · {activeDefinition.label}</span>
         </div>
         <span><Icon name={completed ? 'check' : practiceComplete ? 'spark' : 'target'} size={17} />{isTaskEvidenceNode && !completed ? '本节点以成果表提交和教师复核为准' : completed ? '本节点学习记录已保存' : practiceComplete ? '必做练习已通过，可保存学习记录' : '可自由阅读；通过必做练习后保存学习记录'}</span>
         {activeSection === 'output' ? (
@@ -120,7 +124,10 @@ export function SelfStudyRenderer({ document, completed, saving, onComplete, ini
             {saving ? '正在保存' : completed ? '继续下一节点' : isTaskEvidenceNode ? '去填写成果表' : '保存本节点学习记录'}<Icon name="arrow" size={17} />
           </button>
         ) : (
-          <button className="is-next" data-primary-action="true" disabled={activeIndex === selfStudySectionDefinitions.length - 1} onClick={() => moveSection(1)} type="button">下一段<Icon name="arrow" size={17} /></button>
+          <button className="is-next" data-primary-action="true"
+            disabled={!nextDefinition} onClick={() => moveSection(1)} type="button">
+            {nextDefinition ? `继续：${nextDefinition.label}` : '已经读完'}<Icon name="arrow" size={17} />
+          </button>
         )}
       </footer>
     </article>

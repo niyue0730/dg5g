@@ -4,7 +4,7 @@ import { select } from 'd3-selection';
 import { zoom, zoomIdentity, type ZoomBehavior, type ZoomTransform } from 'd3-zoom';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { curriculumFocusPath } from '@/platform/fixtures/curriculum-graph-fixtures';
-import type { CurriculumGraphNode, GraphData } from '@/platform/models';
+import type { CurriculumGraphNode, GraphData, ResourceCard } from '@/platform/models';
 import type { P1TaskId } from '@/platform/learning-policy';
 import { Icon } from '@/ui/foundation/icons';
 import { semanticZoomLevel } from './graph-geometry';
@@ -158,6 +158,9 @@ export function SemanticCourseGraph({
   }
 
   const detail = selected ? detailForNode(selected, selectedAccess, graph, progress, taskProgress, heatmap, projectCompositeScore) : null;
+  const selectedResources = selected?.nodeId
+    ? resourcesForActor(graph.bindings.filter(({ nodeId }) => nodeId === selected.nodeId), actorMode)
+    : [];
   return (
     <section className={`semantic-graph-shell is-${mode} is-${actorMode}`} data-graph-density={mode}
       data-primary-action-policy={detail && (detail.node.nodeId || detail.node.taskId) && selectedAccess.canNavigate ? 'exactly-one' : 'none'}
@@ -181,7 +184,7 @@ export function SemanticCourseGraph({
         </div>
         <svg aria-label="5G网络优化课程能力图谱" className="semantic-graph-svg" ref={svgRef} role="img">
           <title>5G网络优化课程能力图谱</title>
-          <desc>从岗位群、典型工作任务、核心能力、课程项目到教材任务、学习活动和成绩回流的可缩放语义图谱。</desc>
+          <desc>从岗位群、典型工作任务、核心能力、课程项目到教材任务，并通过关联资源、学习活动和评价结果形成闭环的可缩放语义图谱。</desc>
           <defs>
             <pattern height="40" id="graph-grid" patternUnits="userSpaceOnUse" width="40"><path d="M40 0H0V40" fill="none" stroke="#143951" strokeWidth="1" /></pattern>
             {(['prerequisite', 'evidence', 'output', 'review', 'assessment'] as const).map((kind) => (
@@ -212,7 +215,7 @@ export function SemanticCourseGraph({
             </g>
           </g>
         </svg>
-        <div className="graph-legend" aria-label="连线图例"><span className="is-prerequisite">前置</span><span className="is-evidence">学习活动</span><span className="is-assessment">评价成绩</span></div>
+        <div className="graph-legend" aria-label="连线图例"><span className="is-prerequisite">前置</span><span className="is-evidence">资源与活动</span><span className="is-assessment">评价成绩</span></div>
         <GraphMinimap nodes={graph.curriculumNodes} transform={transform} viewport={viewport} />
       </div>
 
@@ -221,11 +224,54 @@ export function SemanticCourseGraph({
           <header><span>{graphKindLabel[detail.node.kind]}</span><h2>{detail.title}</h2><small>{detail.node.id}</small></header>
           <dl>{detail.rows.map((row) => <div key={row.label}><dt>{row.label}</dt><dd>{row.value}</dd></div>)}</dl>
           <div className="graph-detail-score"><span>当前状态</span><strong>{detail.status}</strong><i><b style={{ width: `${detail.percent}%` }} /></i></div>
+          {selectedResources.length ? (
+            <section className="graph-resource-links" data-graph-resource-count={selectedResources.length}>
+              <header><span>关联资源</span><strong>{selectedResources.length} 项可用资源</strong></header>
+              <div>
+                {selectedResources.map((resource) => (
+                  <a data-graph-resource={resource.resourceId} href={resource.routeTarget.href}
+                    key={resource.resourceId}
+                    rel={resource.type === 'projector' ? 'noreferrer' : undefined}
+                    target={resource.type === 'projector' ? '_blank' : undefined}>
+                    <Icon name={resourceIcon(resource)} size={17} />
+                    <span><strong>{resource.title}</strong><small>{resourceTypeLabel[resource.type]}</small></span>
+                    <Icon name="arrow" size={15} />
+                  </a>
+                ))}
+              </div>
+            </section>
+          ) : null}
           {(detail.node.nodeId || detail.node.taskId) ? <button data-primary-action={selectedAccess.canNavigate ? '' : undefined} disabled={!selectedAccess.canNavigate} onClick={() => { if (selectedAccess.canNavigate) chooseNode(detail.node); }} title={selectedAccess.label} type="button">{actorMode === 'teacher' ? '进入授课' : selectedAccess.kind === 'locked' ? '查看解锁条件' : detail.node.action === 'formal-test' ? '进入正式测试' : '继续学习'}<Icon name="arrow" size={18} /></button> : null}
         </> : null}
       </aside>
     </section>
   );
+}
+
+const resourceTypeLabel: Record<ResourceCard['type'], string> = {
+  'student-page': '完整教材正文',
+  activity: '课堂跟学活动',
+  'teacher-slide': '教师授课页',
+  projector: '全班投屏页',
+  table: '学习记录表',
+};
+
+function resourcesForActor(
+  resources: ResourceCard[],
+  actorMode: GraphSnapshotModel['mode'],
+): ResourceCard[] {
+  const visibleTypes: ResourceCard['type'][] = actorMode === 'teacher'
+    ? ['teacher-slide', 'projector']
+    : ['student-page', 'activity'];
+  return resources.filter(({ type }) => visibleTypes.includes(type)).slice(0, 2);
+}
+
+function resourceIcon(resource: ResourceCard): 'book' | 'follow' | 'teacher' | 'projector' | 'file' {
+  if (resource.type === 'student-page') return 'book';
+  if (resource.type === 'activity') return 'follow';
+  if (resource.type === 'teacher-slide') return 'teacher';
+  if (resource.type === 'projector') return 'projector';
+  return 'file';
 }
 
 function fitOverview(behavior: ZoomBehavior<SVGSVGElement, unknown>, svg: SVGSVGElement, width: number, height: number) {

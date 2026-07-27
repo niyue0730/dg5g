@@ -179,13 +179,19 @@ async function captureFourSurfaceFacts(teacher, student) {
   const [studentFacts, teacherFacts, projectorFacts, graphFacts] = await Promise.all([
     captureSnapshotSurface(student, '/student/home', '[data-student-home]', 'student-home'),
     captureSnapshotSurface(teacher, '/teacher/sessions/demo-class', '.teacher-console', 'teacher-session'),
-    captureSnapshotSurface(teacher, '/present/demo-class', '.projector-app', 'projector'),
+    captureSnapshotSurface(
+      teacher,
+      '/present/demo-class',
+      '.projector-app',
+      'projector',
+      '.scene-projector-stage [data-teaching-page], .scene-projector-stage .projector-formal-test, .scene-projector-stage .projector-review',
+    ),
     captureSnapshotSurface(student, '/course', '[data-course-home]', 'student-graph'),
   ]);
   return { student: studentFacts, teacher: teacherFacts, projector: projectorFacts, graph: graphFacts };
 }
 
-async function captureSnapshotSurface(context, route, selector, label) {
+async function captureSnapshotSurface(context, route, selector, label, readySelector) {
   const attributes = [
     'data-snapshot-version',
     'data-classroom-revision',
@@ -194,6 +200,9 @@ async function captureSnapshotSurface(context, route, selector, label) {
     'data-formal-passed',
   ];
   return captureSurface(context, route, selector, label, async (page, root) => {
+    if (readySelector) {
+      await page.locator(readySelector).first().waitFor({ state: 'visible', timeout: 45_000 });
+    }
     await page.waitForFunction(({ target, names }) => {
       const element = document.querySelector(target);
       return Boolean(element && names.every((name) => element.getAttribute(name) !== null));

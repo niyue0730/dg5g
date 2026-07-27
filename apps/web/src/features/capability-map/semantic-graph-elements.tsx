@@ -2,6 +2,7 @@ import type { CurriculumGraphNode, GraphData, SemanticEdge } from '@/platform/mo
 import React, { useRef } from 'react';
 import { nodeLearningStateLabel } from '@/platform/learning-status';
 import { getNodeLearningPolicy } from '@/platform/learning-policy';
+import { demoTaskScorePolicy } from '@/platform/learning-mastery';
 import { projectFutureContentAccess, projectNodeAccess, projectTaskAccess, type NodeAccessProgress, type NodeAccessProjection } from '@/platform/node-access-projection';
 import {
   isGraphNodeKeyboardActivation,
@@ -34,7 +35,7 @@ const graphLayerGuides = [
   { lines: ['核心能力'], y: 350 },
   { lines: ['课程项目'], y: 496 },
   { lines: ['教材任务', '与技能'], y: 640 },
-  { lines: ['学习活动', '与成绩'], y: 920 },
+  { lines: ['资源、活动', '与评价'], y: 920 },
 ] as const;
 
 export function GraphLayerLabels() {
@@ -215,6 +216,7 @@ export function detailForNode(
       ...(task ? [
         { label: '节点测试最高分', value: scoreLabel(task.nodeTestHighestScore, task.origin) },
         { label: '任务综合分', value: scoreLabel(task.taskCompositeScore, task.origin) },
+        { label: '计分口径', value: demoTaskScorePolicy.label },
       ] : []),
       ...(node.projectId === 'P1' ? [{
         label: '项目综合分',

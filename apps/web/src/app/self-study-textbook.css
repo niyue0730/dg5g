@@ -592,6 +592,19 @@
   background: #0c2a40;
 }
 
+.self-study-renderer .self-study-section-position .self-study-previous {
+  width: auto;
+  min-width: 88px;
+  display: inline-flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 10px;
+}
+
+.self-study-renderer .self-study-section-position .self-study-previous svg {
+  transform: rotate(180deg);
+}
+
 .self-study-renderer .self-study-footer > span {
   color: #9bb4c0;
 }

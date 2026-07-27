@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Icon } from '../../ui/foundation/icons.tsx';
+import { demoTaskScorePolicy } from '../../platform/learning-mastery.ts';
 import type { StudentHomeViewModel } from './student-home-model.ts';
 import { RoleHomeHeader } from './role-home-header.tsx';
 
@@ -90,6 +91,7 @@ function StudentReady({ model }: { model: Extract<StudentHomeViewModel, { kind: 
             <Score demo={model.progress.taskScoreOrigin === 'demo'} label="任务综合分" value={model.progress.taskCompositeScore} />
             <Score demo={model.progress.projectScoreOrigin === 'demo'} label="项目综合分" value={model.progress.projectCompositeScore} />
           </dl>
+          <small className="student-score-policy">任务综合分：{demoTaskScorePolicy.label}；两项齐全后形成。</small>
         </section>
 
         <section className="role-home-card student-output-card">

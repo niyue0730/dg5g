@@ -64,7 +64,8 @@ test('the self-study surface exposes one primary continuation and a bounded text
   assert.match(html, /data-primary-action-policy="exactly-one"/);
   assert.match(html, /class="self-study-sections self-study-textbook-body"/);
   assert.equal((html.match(/data-primary-action="true"/g) ?? []).length, 1);
-  assert.match(html, /data-primary-action="true"[^>]*>下一段/);
+  assert.match(html, /data-primary-action="true"[^>]*>继续：/);
+  assert.match(html, /class="self-study-previous"/);
   assert.equal((html.match(/aria-current="step"/g) ?? []).length, 1);
   assert.equal((html.match(/<button[^>]*data-self-study-section-tab=/g) ?? []).length, 6);
   assert.equal((source.match(/data-primary-action="true"/g) ?? []).length, 2, 'next and output branches each own their primary action');

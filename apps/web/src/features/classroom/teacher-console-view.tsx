@@ -62,14 +62,17 @@ export function TeacherConsoleView(p: TeacherConsoleViewProps) {
           </a>
           <div>
             <strong>{p.profile.taskId} / {p.profile.title}</strong>
-            <small>课堂 / {p.rosterStats.follow}人跟随 / {p.rosterStats.self}人自学</small>
+            <small>
+              班级 {p.rosterStats.total} 人 · 已进入课堂 {p.rosterStats.follow + p.rosterStats.self} 人
+              · 跟随 {p.rosterStats.follow} 人 · 自主 {p.rosterStats.self} 人
+            </small>
           </div>
           <nav>
             <span className={`teacher-helper-pill is-${p.helperStatus}`}
               data-helper-state={p.helperStatus}>
               <i />{p.helperStatus === 'offline'
                 ? '课堂进行中 · 助手离线'
-                : `课堂助手 ${p.onlineStudentDeviceCount}人在线`}
+                : `已连接学生设备 ${p.onlineStudentDeviceCount} 台`}
             </span>
             <a href={`/present/${p.session.sessionId}`} target="_blank">投屏预览</a>
             <button aria-label={p.inspectorOpen ? '收起教师检查器' : '打开教师检查器'}

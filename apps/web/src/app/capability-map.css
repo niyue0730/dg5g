@@ -177,6 +177,15 @@
 .graph-detail-score { display: grid; grid-template-columns: 1fr auto; gap: 7px; margin-top: 16px; }
 .graph-detail-score span { color: #7895a7; font-size: 12px; }.graph-detail-score strong { color: #48ddd6; font-size: 12px; }
 .graph-detail-score i { grid-column: 1 / -1; height: 5px; overflow: hidden; background: #203f54; }.graph-detail-score b { height: 100%; display: block; background: #2bcbb0; }
+.graph-resource-links { display: grid; gap: 9px; margin-top: 17px; }
+.graph-resource-links > header { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 0; padding: 0; }
+.graph-resource-links > header strong { color: #a8beca; font-size: 11px; }
+.graph-resource-links > div { display: grid; gap: 7px; }
+.graph-resource-links a { min-width: 0; min-height: 50px; display: grid; grid-template-columns: 20px minmax(0,1fr) 16px; align-items: center; gap: 8px; border: 1px solid #2c5167; border-radius: 5px; padding: 8px 9px; color: #dcebf1; background: #0b2940; text-decoration: none; }
+.graph-resource-links a:hover { border-color: #3bcfc8; background: #0d324a; }
+.graph-resource-links a > span { min-width: 0; display: grid; gap: 3px; }
+.graph-resource-links a strong { overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.graph-resource-links a small { color: #7fa1b2; font-size: 10px; }
 .graph-detail-panel > button { width: 100%; min-height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 18px; border: 1px solid #07848b; border-radius: 5px; color: #fff; background: #07848b; font-weight: 900; }
 
 @media (max-width: 1040px) {

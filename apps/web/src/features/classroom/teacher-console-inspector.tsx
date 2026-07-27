@@ -1,6 +1,7 @@
 import { OutputReviewPanel } from '@/features/review/output-review-panel';
 import { TeacherSkillPulse } from '@/features/skill-tree/teacher-skill-pulse';
 import { Icon } from '@/ui/foundation/icons';
+import { demoTaskScorePolicy } from '@/platform/learning-mastery';
 import type { TeacherConsoleViewProps } from './teacher-console-view-props';
 
 export function TeacherConsoleInspector({ p }: { p: TeacherConsoleViewProps }) {
@@ -78,6 +79,7 @@ export function TeacherConsoleInspector({ p }: { p: TeacherConsoleViewProps }) {
             <div><small>任务综合平均分</small><strong>{scoreLabel(p.classScores.activeTaskCompositeAverageScore)}</strong></div>
             <div><small>项目综合平均分</small><strong>{scoreLabel(p.classScores.projectCompositeAverageScore)}</strong></div>
           </div>
+          <small className="teacher-score-policy">任务综合分按“{demoTaskScorePolicy.label}”计算，教师确认成果后形成。</small>
           <strong>成绩分布</strong>
           <div className="teacher-score-distribution">
             {p.classScores.distribution.map((band) => (
@@ -111,7 +113,7 @@ export function TeacherConsoleInspector({ p }: { p: TeacherConsoleViewProps }) {
             ? `已应用 ${p.deliveryStats.applied} · 等待 ${p.deliveryStats.pending} · 失败 ${p.deliveryStats.failed}`
             : '启动课堂助手后才能控制学生屏幕'}</strong>
           <small>{p.connection.state === 'online'
-            ? `会话在线 · ${p.onlineStudentDeviceCount}名学生设备在线`
+            ? `课堂连接正常 · ${p.onlineStudentDeviceCount} 台学生设备已连接`
             : `会话状态：${p.connection.state}`}</small>
         </section>
       </div>

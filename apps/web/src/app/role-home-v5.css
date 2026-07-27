@@ -147,6 +147,7 @@
 .student-score-list div { min-width: 0; border: 1px solid var(--rh-line); border-radius: 6px; padding: 9px; background: #0a203d; }
 .student-score-list dt { color: var(--rh-muted); font-size: 10px; line-height: 1.4; }
 .student-score-list dd { margin: 7px 0 0; color: #fff; font-size: 17px; font-weight: 900; }
+.student-score-policy { display: block; margin-top: 9px; color: #7892ac; font-size: 10px; line-height: 1.5; }
 .student-output-card p { margin: 10px 0; color: var(--rh-muted); font-size: 12px; }
 .student-output-card > strong { display: flex; align-items: center; gap: 9px; border-left: 3px solid var(--rh-green); padding: 9px 11px; color: #e8fff7; background: #102d45; font-size: 13px; }
 .student-recommendations { display: grid; gap: 8px; }

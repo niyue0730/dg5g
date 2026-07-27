@@ -50,6 +50,12 @@ export interface TaskScoreProjection {
   taskCompositeScore?: number;
 }
 
+export const demoTaskScorePolicy = {
+  nodeTestWeight: .4,
+  professionalOutputWeight: .6,
+  label: '节点正式测试 40% + 专业成果 60%',
+} as const;
+
 export function calculateTaskCompositeScore(input: {
   nodeTestHighestScore?: number;
   outputRubricScore?: number;
@@ -64,7 +70,10 @@ export function calculateTaskCompositeScore(input: {
   if (nodeTestHighestScore === undefined || outputRubricScore === undefined) return projection;
   return {
     ...projection,
-    taskCompositeScore: Math.round(nodeTestHighestScore * .4 + outputRubricScore * .6),
+    taskCompositeScore: Math.round(
+      nodeTestHighestScore * demoTaskScorePolicy.nodeTestWeight
+      + outputRubricScore * demoTaskScorePolicy.professionalOutputWeight,
+    ),
   };
 }
 

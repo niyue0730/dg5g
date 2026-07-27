@@ -83,4 +83,8 @@ test('the default learning path renders complete P1 plus one explicit unopened-c
     /aria-disabled="true"[^>]*data-graph-node-id="P04"[^>]*data-graph-node-label="后续开放"[^>]*data-graph-node-state="unavailable"/,
   );
   assert.doesNotMatch(html, /data-graph-node-id="P05"/, 'the focused path keeps only the next future boundary');
+  assert.match(html, /data-graph-resource="R-P1T1-N02-SELF"/);
+  assert.match(html, /href="\/learn\/P1T1-N02"/);
+  assert.match(html, /data-graph-resource="R-P1T1-N02-FOLLOW"/);
+  assert.match(html, /href="\/classroom\/demo-class"/);
 });

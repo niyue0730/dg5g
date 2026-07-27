@@ -22,10 +22,13 @@
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .projector-page-controls > a,
 .projector-page-controls > button {
+  flex: 0 0 auto;
   border: 1px solid #45657e;
   border-radius: 8px;
   padding: 7px 10px;
@@ -34,6 +37,10 @@
   font: inherit;
   text-decoration: none;
   cursor: pointer;
+}
+
+.projector-page-controls > em {
+  flex: 0 0 auto;
 }
 
 .projector-page-controls > button:disabled {

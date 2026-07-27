@@ -55,7 +55,7 @@ async function auditTeacher(context) {
     await root.waitFor({ state: 'visible', timeout: 20_000 });
     await root.locator('[data-helper-state="online"]').waitFor({ state: 'visible', timeout: 20_000 });
     const onlineLabel = await root.locator('[data-helper-state="online"]').innerText();
-    assert(/3人在线/.test(onlineLabel), `teacher helper count is not three: ${onlineLabel}`);
+    assert(/已连接学生设备\s*3\s*台/.test(onlineLabel), `teacher helper device count is not three: ${onlineLabel}`);
 
     const indoorBoundary = await visitNodePages(page, 'P1T1-N01', 5);
     await page.screenshot({ path: path.join(outDir, 'teacher-indoor-boundary-page-5.png'), fullPage: true });

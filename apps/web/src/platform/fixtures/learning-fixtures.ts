@@ -18,21 +18,21 @@ function resourcesForNode(node: AbilityNode): ResourceCard[] {
     }),
     resource(`R-${node.nodeId}-FOLLOW`, node, `${label} 课堂活动`, '跟随教师讲解，完成本节点课堂小任务。', 'activity', 'direct-render', {
       kind: 'student-follow',
-      href: `/classroom/${node.nodeId}`,
+      href: '/classroom/demo-class',
       pageId: 'P1-STUDENT-FOLLOW-N01',
-      sessionId: node.nodeId,
+      sessionId: 'demo-class',
     }),
     resource(`R-${node.nodeId}-TEACHER`, node, `${label} 教师授课页`, '用于课堂讲评、控屏、推送任务和监督学习证据。', 'teacher-slide', 'resource-package', {
       kind: 'teacher',
-      href: `/teacher/sessions/${node.nodeId}`,
+      href: '/teacher/sessions/demo-class',
       pageId: 'P1-TEACH-CONSOLE-N01',
-      sessionId: node.nodeId,
+      sessionId: 'demo-class',
     }),
     resource(`R-${node.nodeId}-PRESENT`, node, `${label} 投屏页`, '面向全班展示的节点讲解页面。', 'projector', 'direct-render', {
       kind: 'projector',
-      href: `/present/${node.nodeId}`,
+      href: '/present/demo-class',
       pageId: 'P1-TEACH-PROJECTOR-N01',
-      sessionId: node.nodeId,
+      sessionId: 'demo-class',
     }),
   ];
 }
