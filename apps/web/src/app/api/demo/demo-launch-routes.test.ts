@@ -110,6 +110,66 @@ test('one native navigation bridges to the current student stage', async () => {
   assert.equal(redeemed.headers.get('location'), 'http://localhost:3157/learn/P1T1-N02');
 });
 
+test('proxied student launch redeems against the external student host', async () => {
+  const previousStudentOrigin = process.env.DGBOOK_DEMO_STUDENT_ORIGIN;
+  const previousInsecure = process.env.DGBOOK_DEMO_ALLOW_INSECURE_HTTP;
+  const previousProxy = process.env.DGBOOK_TRUST_PROXY;
+  try {
+    process.env.DGBOOK_DEMO_STUDENT_ORIGIN = 'http://student.8-153-206-97.nip.io';
+    process.env.DGBOOK_DEMO_ALLOW_INSECURE_HTTP = '1';
+    process.env.DGBOOK_TRUST_PROXY = '1';
+    const teacher = new AuthService(fixture.database).login({
+      username: 'teacher01',
+      password: '123456',
+    });
+    assert.ok(teacher);
+
+    const issued = await issueLaunch(new Request(
+      'http://127.0.0.1:3157/api/demo/launch-ticket',
+      {
+        method: 'POST',
+        headers: {
+          cookie: `${AUTH_COOKIE_NAME}=${teacher.token}`,
+          'content-type': 'application/json',
+          host: 'teacher.8-153-206-97.nip.io',
+          origin: 'http://teacher.8-153-206-97.nip.io',
+          'x-forwarded-proto': 'http',
+        },
+        body: JSON.stringify({
+          audience: 'student03',
+          returnPath: '/student/home',
+        }),
+      },
+    ));
+    assert.equal(issued.status, 201);
+    const payload = await issued.json() as { launchUrl: string };
+    const launchUrl = new URL(payload.launchUrl);
+    assert.equal(launchUrl.origin, 'http://student.8-153-206-97.nip.io');
+
+    const redeemed = await redeemLaunch(new Request(
+      `http://127.0.0.1:3157${launchUrl.pathname}${launchUrl.search}`,
+      {
+        headers: {
+          host: 'student.8-153-206-97.nip.io',
+          'x-forwarded-proto': 'http',
+        },
+      },
+    ));
+    assert.equal(redeemed.status, 303);
+    assert.equal(
+      redeemed.headers.get('location'),
+      'http://student.8-153-206-97.nip.io/student/home',
+    );
+  } finally {
+    if (previousStudentOrigin === undefined) delete process.env.DGBOOK_DEMO_STUDENT_ORIGIN;
+    else process.env.DGBOOK_DEMO_STUDENT_ORIGIN = previousStudentOrigin;
+    if (previousInsecure === undefined) delete process.env.DGBOOK_DEMO_ALLOW_INSECURE_HTTP;
+    else process.env.DGBOOK_DEMO_ALLOW_INSECURE_HTTP = previousInsecure;
+    if (previousProxy === undefined) delete process.env.DGBOOK_TRUST_PROXY;
+    else process.env.DGBOOK_TRUST_PROXY = previousProxy;
+  }
+});
+
 test('native student launch rejects missing, mismatched and cross-site sources', async () => {
   const teacher = new AuthService(fixture.database).login({
     username: 'teacher01',
@@ -268,5 +328,40 @@ test('public demo start requires the enabled private presenter key and same orig
     else process.env.DGBOOK_DEMO_AUTO_LOGIN = previousEnabled;
     if (previousKey === undefined) delete process.env.DGBOOK_DEMO_PRESENTER_KEY;
     else process.env.DGBOOK_DEMO_PRESENTER_KEY = previousKey;
+  }
+});
+
+test('proxied public demo start uses the external host instead of the internal listener', async () => {
+  const previousEnabled = process.env.DGBOOK_DEMO_AUTO_LOGIN;
+  const previousKey = process.env.DGBOOK_DEMO_PRESENTER_KEY;
+  const previousProxy = process.env.DGBOOK_TRUST_PROXY;
+  const key = 'proxied-demo-presenter-key-32-chars-minimum';
+  try {
+    process.env.DGBOOK_DEMO_AUTO_LOGIN = '1';
+    process.env.DGBOOK_DEMO_PRESENTER_KEY = key;
+    process.env.DGBOOK_TRUST_PROXY = '1';
+
+    const accepted = await startPresenter(new Request(
+      'http://127.0.0.1:3157/api/demo/presenter-session',
+      {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          host: 'teacher.8-153-206-97.nip.io',
+          origin: 'http://teacher.8-153-206-97.nip.io',
+          'x-forwarded-proto': 'http',
+        },
+        body: JSON.stringify({ key }),
+      },
+    ));
+    assert.equal(accepted.status, 200);
+    assert.doesNotMatch(accepted.headers.get('set-cookie') ?? '', /Secure/i);
+  } finally {
+    if (previousEnabled === undefined) delete process.env.DGBOOK_DEMO_AUTO_LOGIN;
+    else process.env.DGBOOK_DEMO_AUTO_LOGIN = previousEnabled;
+    if (previousKey === undefined) delete process.env.DGBOOK_DEMO_PRESENTER_KEY;
+    else process.env.DGBOOK_DEMO_PRESENTER_KEY = previousKey;
+    if (previousProxy === undefined) delete process.env.DGBOOK_TRUST_PROXY;
+    else process.env.DGBOOK_TRUST_PROXY = previousProxy;
   }
 });

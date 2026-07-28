@@ -11,15 +11,20 @@ export function readDemoAudienceOrigins(
   environment: Readonly<Record<string, string | undefined>> = process.env,
 ): DemoAudienceOrigins {
   const origins: DemoAudienceOrigins = {};
+  const allowInsecureHttp = environment.DGBOOK_DEMO_ALLOW_INSECURE_HTTP === '1';
   for (const audience of Object.keys(originEnvironment) as DemoAudience[]) {
     const name = originEnvironment[audience];
     const value = environment[name]?.trim();
-    if (value) origins[audience] = validateDemoOrigin(name, value);
+    if (value) origins[audience] = validateDemoOrigin(name, value, { allowInsecureHttp });
   }
   return origins;
 }
 
-export function validateDemoOrigin(name: string, value: string): string {
+export function validateDemoOrigin(
+  name: string,
+  value: string,
+  options: { allowInsecureHttp?: boolean } = {},
+): string {
   let origin: URL;
   try {
     origin = new URL(value);
@@ -32,7 +37,9 @@ export function validateDemoOrigin(name: string, value: string): string {
   const loopback = origin.hostname === '127.0.0.1'
     || origin.hostname === 'localhost'
     || origin.hostname === '[::1]';
-  if (origin.protocol !== 'https:' && !(loopback && origin.protocol === 'http:')) {
+  const permittedHttp = origin.protocol === 'http:'
+    && (loopback || options.allowInsecureHttp === true);
+  if (origin.protocol !== 'https:' && !permittedHttp) {
     throw new Error(`${name}在公网环境必须使用HTTPS。`);
   }
   return origin.origin;

@@ -184,7 +184,9 @@ function normalizeTargetOrigin(value: string): string {
   const loopback = url.hostname === '127.0.0.1'
     || url.hostname === 'localhost'
     || url.hostname === '[::1]';
-  if (url.protocol !== 'https:' && !(loopback && url.protocol === 'http:')) {
+  const allowInsecureHttp = process.env.DGBOOK_DEMO_ALLOW_INSECURE_HTTP === '1';
+  const permittedHttp = url.protocol === 'http:' && (loopback || allowInsecureHttp);
+  if (url.protocol !== 'https:' && !permittedHttp) {
     throw new Error('Demo launch target must use HTTPS.');
   }
   return url.origin;

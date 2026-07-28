@@ -5,11 +5,13 @@ import {
   sessionCookieOptions,
 } from '@/platform/auth/cookie';
 import { getDatabase } from '@/platform/db/database';
+import { resolveDemoRequestOrigin } from '@/platform/auth/demo-request-origin';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
+  const requestOrigin = resolveDemoRequestOrigin(request);
   if (
     [...url.searchParams.keys()].some((key) => key !== 'ticket')
     || url.searchParams.getAll('ticket').length !== 1
@@ -23,7 +25,7 @@ export async function GET(request: Request) {
   try {
     launch = new DemoLaunchService(getDatabase()).redeem({
       token: ticket,
-      targetOrigin: url.origin,
+      targetOrigin: requestOrigin,
     });
   } catch {
     return failure();
@@ -31,7 +33,7 @@ export async function GET(request: Request) {
   if (!launch || launch.actor.username !== 'student03') return failure();
 
   const response = NextResponse.redirect(
-    new URL(launch.returnPath, url.origin),
+    new URL(launch.returnPath, requestOrigin),
     303,
   );
   response.headers.set(

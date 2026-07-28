@@ -23,6 +23,17 @@ test('demo audience origins accept HTTPS public hosts and HTTP loopback hosts', 
       projector: 'https://screen.demo.example.com',
     },
   );
+  assert.deepEqual(
+    readDemoAudienceOrigins({
+      DGBOOK_DEMO_ALLOW_INSECURE_HTTP: '1',
+      DGBOOK_DEMO_TEACHER_ORIGIN: 'http://teacher.8-153-206-97.nip.io',
+      DGBOOK_DEMO_STUDENT_ORIGIN: 'http://student.8-153-206-97.nip.io',
+    }),
+    {
+      teacher: 'http://teacher.8-153-206-97.nip.io',
+      student03: 'http://student.8-153-206-97.nip.io',
+    },
+  );
 });
 
 test('demo audience origins reject unsafe or path-bearing public URLs', () => {

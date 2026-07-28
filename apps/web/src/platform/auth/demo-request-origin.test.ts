@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { resolveTrustedDemoRequestOrigin } from './demo-request-origin.ts';
+import {
+  resolveDemoRequestOrigin,
+  resolveTrustedDemoRequestOrigin,
+} from './demo-request-origin.ts';
 
 test('accepts exact origins and equivalent loopback host aliases', () => {
   assert.equal(
@@ -45,4 +48,29 @@ test('rejects public mismatches, loopback port mismatches and cross-site fetches
     })),
     null,
   );
+});
+
+test('uses the proxy-owned host and scheme for public same-origin checks', () => {
+  const previous = process.env.DGBOOK_TRUST_PROXY;
+  try {
+    process.env.DGBOOK_TRUST_PROXY = '1';
+    const request = new Request('http://127.0.0.1:3157/api/demo', {
+      headers: {
+        host: 'teacher.8-153-206-97.nip.io',
+        origin: 'http://teacher.8-153-206-97.nip.io',
+        'x-forwarded-proto': 'http',
+      },
+    });
+    assert.equal(
+      resolveDemoRequestOrigin(request),
+      'http://teacher.8-153-206-97.nip.io',
+    );
+    assert.equal(
+      resolveTrustedDemoRequestOrigin(request),
+      'http://teacher.8-153-206-97.nip.io',
+    );
+  } finally {
+    if (previous === undefined) delete process.env.DGBOOK_TRUST_PROXY;
+    else process.env.DGBOOK_TRUST_PROXY = previous;
+  }
 });

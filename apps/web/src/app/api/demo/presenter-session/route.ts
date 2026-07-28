@@ -11,13 +11,13 @@ import { getDatabase } from '@/platform/db/database';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
-  const requestUrl = new URL(request.url);
-  if (!resolveTrustedDemoRequestOrigin(request)) {
+  const requestOrigin = resolveTrustedDemoRequestOrigin(request);
+  if (!requestOrigin) {
     return json({ error: 'Cross-origin demo start rejected' }, 403);
   }
 
   const body = await readBody(request);
-  if (!body || !presenterAccessAllowed(requestUrl, body.key)) {
+  if (!body || !presenterAccessAllowed(new URL(requestOrigin), body.key)) {
     return json({ error: 'Demo start unavailable' }, 404);
   }
 
