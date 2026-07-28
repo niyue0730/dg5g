@@ -4,6 +4,7 @@ import test from 'node:test';
 
 const client = readFileSync(new URL('./demo-control-client.tsx', import.meta.url), 'utf8');
 const startClient = readFileSync(new URL('./demo-start-client.tsx', import.meta.url), 'utf8');
+const startPage = readFileSync(new URL('../../app/demo/start/page.tsx', import.meta.url), 'utf8');
 const page = readFileSync(new URL('../../app/teacher/demo-control/page.tsx', import.meta.url), 'utf8');
 
 test('hidden demo control is teacher-authorized and absent from product navigation', () => {
@@ -50,6 +51,8 @@ test('one click performs one native navigation through the student launch route'
 });
 
 test('demo start exchanges a stripped fragment key for a teacher session', () => {
+  assert.match(startPage, /dynamic = 'force-dynamic'/);
+  assert.match(startPage, /revalidate = 0/);
   assert.match(startClient, /window\.location\.hash\.slice\(1\)/);
   assert.match(startClient, /window\.history\.replaceState/);
   assert.match(startClient, /\/api\/demo\/presenter-session/);
