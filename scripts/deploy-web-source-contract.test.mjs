@@ -57,6 +57,22 @@ test('release id and managed paths reject traversal or unsafe characters', () =>
   });
 });
 
+test('an IPv4 deployment preserves a second cookie-isolated literal host for the demo student', () => {
+  const plan = fixturePlan();
+  assert.match(
+    plan.nginxConfig,
+    /server_name 8\.153\.206\.97 ~\^\\\[::ffff:899:ce61\\\]\$;/,
+  );
+
+  const domainPlan = buildDeploymentPlan({
+    releaseId,
+    archiveSha256: digest,
+    publicHost: 'demo.example.com',
+  });
+  assert.match(domainPlan.nginxConfig, /server_name demo\.example\.com;/);
+  assert.doesNotMatch(domainPlan.nginxConfig, /::ffff:/);
+});
+
 test('activation atomically records old current as previous and restores both link snapshots on rollback', () => {
   const plan = fixturePlan();
   assert.equal(plan.previousLink, '/var/www/dgbook-web/previous');

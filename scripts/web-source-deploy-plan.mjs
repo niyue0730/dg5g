@@ -248,9 +248,10 @@ function systemdEnvironment(name, value) {
 }
 
 function buildNginxConfig({ publicHost, appPort, hostname }) {
+  const mappedIpv6Alias = ipv4MappedIpv6ServerName(publicHost);
   return `server {
     listen 80;
-    server_name ${publicHost};
+    server_name ${publicHost}${mappedIpv6Alias};
     client_max_body_size 64m;
     location / {
         proxy_pass http://${hostname}:${appPort};
@@ -262,6 +263,20 @@ function buildNginxConfig({ publicHost, appPort, hostname }) {
     }
 }
 `;
+}
+
+function ipv4MappedIpv6ServerName(publicHost) {
+  const octets = publicHost.split('.');
+  if (
+    octets.length !== 4
+    || octets.some((octet) => !/^(0|[1-9][0-9]{0,2})$/.test(octet))
+    || octets.some((octet) => Number(octet) > 255)
+  ) {
+    return '';
+  }
+  const high = ((Number(octets[0]) << 8) | Number(octets[1])).toString(16);
+  const low = ((Number(octets[2]) << 8) | Number(octets[3])).toString(16);
+  return ` ~^\\[::ffff:${high}:${low}\\]$`;
 }
 
 function buildPrepareScript(plan) {
