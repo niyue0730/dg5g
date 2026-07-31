@@ -50,10 +50,12 @@ test('one click performs one native navigation through the student launch route'
   assert.match(client, /学生三窗口已自动登录并进入当前阶段/);
 });
 
-test('demo start exchanges a stripped fragment key for a teacher session', () => {
+test('demo start exchanges a stripped launch key for a teacher session', () => {
   assert.match(startPage, /dynamic = 'force-dynamic'/);
   assert.match(startPage, /revalidate = 0/);
-  assert.match(startClient, /window\.location\.hash\.slice\(1\)/);
+  assert.match(startClient, /location\.hash\.slice\(1\)/);
+  assert.match(startClient, /URLSearchParams\(location\.search\)\.get\('k'\)/);
+  assert.match(startClient, /searchParams\.delete\('k'\)/);
   assert.match(startClient, /window\.history\.replaceState/);
   assert.match(startClient, /\/api\/demo\/presenter-session/);
   assert.match(startClient, /window\.location\.replace\(body\.home\)/);

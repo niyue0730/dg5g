@@ -79,6 +79,10 @@ server {
 
 - 教师通过私有链接 `https://teacher.demo.example.com/demo/start#<DGBOOK_DEMO_PRESENTER_KEY>` 进入控制台，不显示登录页。
 - `#` 后的启动密钥不会随页面请求进入反向代理访问日志；启动页会先从地址栏移除密钥，再通过同源 HTTPS 请求换取教师会话。
+- 如果聊天工具或浏览器会丢弃 URL 片段，可临时使用
+  `https://teacher.demo.example.com/demo/start?k=<DGBOOK_DEMO_PRESENTER_KEY>`。启动页读取后会立即从地址栏移除
+  `k` 参数，再通过同源请求换取教师会话。查询参数可能进入反向代理访问日志，因此仅用于受控演示，
+  演示结束后应轮换启动密钥；常规情况下仍优先使用 `#` 形式。
 - 控制台打开学生步骤时签发60秒一次性启动票据，`student.demo.example.com` 兑换后自动建立 `student03` 会话。
 - 后续演示步骤复用命名窗口，不需要手工登录、登出或切换身份。
 - 投屏端与教师端使用同一主机和教师身份，但保留独立命名窗口，因此无需增加一次登录。

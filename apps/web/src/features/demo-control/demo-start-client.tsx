@@ -10,9 +10,8 @@ export function DemoStartClient() {
   useEffect(() => {
     if (started.current) return;
     started.current = true;
-    const encodedKey = window.location.hash.slice(1);
-    const key = decodeHashKey(encodedKey);
-    window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+    const key = readLaunchKey(window.location);
+    stripLaunchKeyFromAddress(window.location);
 
     void fetch('/api/demo/presenter-session', {
       method: 'POST',
@@ -50,4 +49,17 @@ function decodeHashKey(value: string): string {
   } catch {
     return '';
   }
+}
+
+function readLaunchKey(location: Location): string {
+  const hashKey = decodeHashKey(location.hash.slice(1));
+  if (hashKey) return hashKey;
+  return new URLSearchParams(location.search).get('k') ?? '';
+}
+
+function stripLaunchKeyFromAddress(location: Location): void {
+  const url = new URL(location.href);
+  url.hash = '';
+  url.searchParams.delete('k');
+  window.history.replaceState(null, '', `${url.pathname}${url.search}`);
 }
